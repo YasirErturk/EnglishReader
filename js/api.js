@@ -33,7 +33,7 @@ API.signInGoogle = async function () {
     const { error } = await API.client.auth.signInWithOAuth({
         provider: "google",
         options: {
-            redirectTo: appBase() + "dashboard.html"
+            redirectTo: appBase() + "index.html"
         }
     });
     if (error) alert(error.message);
@@ -85,12 +85,36 @@ API.saveWord = async function (word, meaning) {
     if (!API.client) return false;
     const session = API.session || await API.getSession();
     if (!session) return false;
+    const clean = (window.cleanWord ? cleanWord(word) : String(word || "").trim());
     const { error } = await API.client.from("saved_words").upsert({
         user_id: session.user.id,
-        word: String(word || "").trim(),
+        word: clean || String(word || "").trim(),
         meaning_tr: meaning || ""
     });
     return !error;
+};
+
+API.deleteWord = async function (word) {
+    if (!API.client) return false;
+    const session = API.session || await API.getSession();
+    if (!session) return false;
+    const { error } = await API.client
+        .from("saved_words")
+        .delete()
+        .eq("user_id", session.user.id)
+        .eq("word", word);
+    return !error;
+};
+
+API.resetProfile = async function () {
+    if (!API.client) return { error: "no client" };
+    const session = API.session || await API.getSession();
+    if (!session) return { error: "Giriş gerekli" };
+    const uid = session.user.id;
+    await API.client.from("reading_sessions").delete().eq("user_id", uid);
+    await API.client.from("reading_progress").delete().eq("user_id", uid);
+    await API.client.from("saved_words").delete().eq("user_id", uid);
+    return { error: null };
 };
 
 API.getBookBySlug = async function (file) {
@@ -108,7 +132,7 @@ API.listBooks = async function () {
     if (!API.client) return [];
     const { data, error } = await API.client
         .from("books")
-        .select("id, slug, title, author, genre, description, cover_color, is_copyrighted, word_count")
+        .select("id, slug, title, author, genre, description, cover_color, cover_url, year, is_copyrighted, word_count")
         .eq("is_published", true)
         .order("title");
     if (error) return [];
@@ -123,6 +147,16 @@ API.listAllBooksAdmin = async function () {
         .order("created_at", { ascending: false });
     if (error) return [];
     return data || [];
+};
+
+API.addBook = async function (book) {
+    if (!API.client) return { error: "no client" };
+    return API.client.from("books").insert(book);
+};
+
+API.updateBook = async function (id, book) {
+    if (!API.client) return { error: "no client" };
+    return API.client.from("books").update(book).eq("id", id);
 };
 
 API.saveProgress = async function (bookFile, scrollTop, percent) {
@@ -196,7 +230,7 @@ API.myProgress = async function () {
     if (!session) return [];
     const { data } = await API.client
         .from("reading_progress")
-        .select("*, books(title, author, genre, slug, cover_color)")
+        .select("*, books(title, author, genre, slug, cover_color, cover_url, year)")
         .eq("user_id", session.user.id)
         .order("last_read_at", { ascending: false });
     return data || [];
@@ -214,7 +248,127 @@ API.myWords = async function () {
     return data || [];
 };
 
-API.addBook = async function (book) {
-    if (!API.client) return { error: "no client" };
-    return API.client.from("books").insert(book);
+API.logAuth = async function (event) {
+    if (!API.client) return;
+    const session = API.session || (await API.getSession());
+    if (!session) return;
+    if (event === "login") {
+        const key = "auth_logged_" + session.user.id;
+        if (sessionStorage.getItem(key)) return;
+        sessionStorage.setItem(key, "1");
+    }
+    await API.client.from("auth_events").insert({
+        user_id: session.user.id,
+        email: session.user.email || "",
+        event: event,
+        user_agent: navigator.userAgent || ""
+    });
 };
+
+API.suggestWord = async function (word, meaning) {
+    if (!API.client) return { ok: false, message: "Giriş gerekli" };
+    const session = API.session || await API.getSession();
+    if (!session) return { ok: false, message: "Giriş gerekli" };
+
+    const clean = (window.cleanWord ? cleanWord(word) : String(word || "").replace(/[^a-zA-Z']/g, "")).trim();
+    if (!clean) return { ok: false, message: "Kelime yok" };
+
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const { count, error: countError } = await API.client
+        .from("word_suggestions")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", session.user.id)
+        .gte("created_at", start.toISOString());
+
+    if (countError) return { ok: false, message: countError.message };
+    if ((count || 0) >= 10) return { ok: false, message: "Günlük 10 öneri doldu" };
+
+    const { error } = await API.client.from("word_suggestions").insert({
+        user_id: session.user.id,
+        word: clean,
+        meaning_tr: meaning || "",
+        status: "pending"
+    });
+
+    if (error) return { ok: false, message: error.message };
+    return { ok: true, message: "Öneri gönderildi (" + (10 - (count || 0) - 1) + " kaldı)" };
+};
+
+API.listMembers = async function () {
+    if (!API.client) return [];
+    const { data } = await API.client
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+    return data || [];
+};
+
+API.listAllProgress = async function () {
+    if (!API.client) return [];
+    const { data } = await API.client
+        .from("reading_progress")
+        .select("user_id, total_seconds, status, percent, last_read_at, books(title, genre)");
+    return data || [];
+};
+
+API.listAuthEvents = async function () {
+    if (!API.client) return [];
+    const { data } = await API.client
+        .from("auth_events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(300);
+    return data || [];
+};
+
+API.listSuggestions = async function () {
+    if (!API.client) return [];
+    const { data } = await API.client
+        .from("word_suggestions")
+        .select("*, profiles(display_name, email)")
+        .order("created_at", { ascending: false });
+    return data || [];
+};
+
+API.reviewSuggestion = async function (id, status, word, meaning) {
+    if (!API.client) return { error: "no client" };
+
+    const { error } = await API.client
+        .from("word_suggestions")
+        .update({
+            status: status,
+            reviewed_at: new Date().toISOString()
+        })
+        .eq("id", id);
+
+    if (error) return { error: error };
+
+    if (status === "approved" && word) {
+        const w = String(word).toLowerCase().replace(/[^a-z']/g, "");
+        await API.client.from("dictionary").upsert({
+            word: w,
+            meaning_tr: meaning || ""
+        }, { onConflict: "word" });
+    }
+
+    return { error: null };
+};
+
+API.bookStats = async function () {
+    if (!API.client) return [];
+    const { data, error } = await API.client.rpc("book_stats");
+    if (!error && data) return data;
+    return [];
+};
+
+(function bindAuthLog() {
+    if (!API.client) return;
+    API.client.auth.onAuthStateChange(function (event, session) {
+        if (event === "SIGNED_IN" && session) {
+            API.session = session;
+            API.logAuth("login");
+        }
+    });
+})();

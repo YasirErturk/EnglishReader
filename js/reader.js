@@ -4,6 +4,7 @@ class Reader {
 
         this.reader = document.getElementById("reader");
         this.container = document.getElementById("textContainer");
+        this.titleCard = document.getElementById("titleCard");
 
         this.popup = popup;
         this.settings = settings;
@@ -11,7 +12,9 @@ class Reader {
         this.animation = null;
         this.saveTimer = null;
         this.isRunning = false;
+        this.awaitingStart = true;
         this.currentBook = "alice.txt";
+        this.currentMeta = null;
         this.sessionStartedAt = null;
         this.draggingProgress = false;
         this.longPressFired = false;
@@ -21,6 +24,13 @@ class Reader {
 
             if (e.target.classList.contains("word")) return;
             if (this.draggingProgress) return;
+            if (e.target.closest && e.target.closest("#speedNudge")) return;
+
+            if (this.awaitingStart) {
+                this.hideTitle();
+                this.start();
+                return;
+            }
 
             if (this.isRunning) {
                 this.stop();
@@ -30,11 +40,48 @@ class Reader {
 
         });
 
+        if (this.titleCard) {
+            this.titleCard.addEventListener("click", (e) => {
+                e.stopPropagation();
+                this.hideTitle();
+                this.start();
+            });
+        }
+
         this.reader.addEventListener("selectstart", (e) => e.preventDefault());
         this.reader.addEventListener("dragstart", (e) => e.preventDefault());
 
         this.bindProgressBar();
 
+    }
+
+    showTitle(book) {
+        if (!this.titleCard) return;
+        const img = document.getElementById("titleCover");
+        const name = document.getElementById("titleName");
+        const meta = document.getElementById("titleMeta");
+        const cover = book.cover_url || book.cover || "";
+        if (img) {
+            if (cover) {
+                img.src = cover;
+                img.style.display = "block";
+            } else {
+                img.removeAttribute("src");
+                img.style.display = "none";
+            }
+        }
+        if (name) name.textContent = book.title || "";
+        if (meta) {
+            const bits = [book.author, book.year, book.genre].filter(Boolean);
+            meta.textContent = bits.join(" · ");
+        }
+        this.titleCard.classList.add("show");
+        this.awaitingStart = true;
+    }
+
+    hideTitle() {
+        this.awaitingStart = false;
+        if (this.titleCard) this.titleCard.classList.remove("show");
     }
 
     bindProgressBar() {
@@ -115,7 +162,7 @@ class Reader {
 
         localStorage.setItem("currentBook", this.currentBook);
 
-        let book = LIBRARY.find(b => b.file === this.currentBook) || LIBRARY[0];
+        let book = LIBRARY.find(b => b.file === this.currentBook) || LIBRARY[0] || {};
 
         if (window.API && API.configured) {
             try {
@@ -124,17 +171,21 @@ class Reader {
                     book = {
                         file: this.currentBook,
                         title: remote.title,
+                        author: remote.author,
+                        year: remote.year,
+                        genre: remote.genre,
+                        cover: remote.cover_url || book.cover,
+                        cover_url: remote.cover_url || book.cover,
                         text: remote.content
                     };
                 }
             } catch (err) {}
         }
 
-        this.create(book ? book.text : "");
-
+        this.currentMeta = book;
+        this.create(book.text || "");
+        this.showTitle(book);
         this.restorePosition();
-
-        this.start();
 
         this.reader.addEventListener("scroll", () => {
 
@@ -162,22 +213,28 @@ class Reader {
 
         this.container.innerHTML = "";
 
-        text.split("\n").forEach(paragraph => {
+        String(text || "").split("\n").forEach(paragraph => {
 
             const p = document.createElement("p");
 
-            paragraph.split(" ").forEach(word => {
+            paragraph.split(" ").forEach(token => {
 
-                if (!word.trim()) return;
+                if (!token.trim()) return;
 
-                const span = document.createElement("span");
+                const parts = splitToken(token);
 
-                span.className = "word";
-                span.textContent = word;
+                if (parts.lead) p.append(parts.lead);
 
-                this.bindWord(span);
+                if (parts.word) {
+                    const span = document.createElement("span");
+                    span.className = "word";
+                    span.textContent = parts.word;
+                    this.bindWord(span);
+                    p.append(span);
+                }
 
-                p.append(span);
+                if (parts.trail) p.append(parts.trail);
+
                 p.append(" ");
 
             });
@@ -199,6 +256,7 @@ class Reader {
 
         const startPress = (e) => {
             if (e.button && e.button !== 0) return;
+            if (this.awaitingStart) return;
             this.longPressFired = false;
             clearPress();
             this.pressTimer = setTimeout(() => {
@@ -224,6 +282,12 @@ class Reader {
 
             e.stopPropagation();
 
+            if (this.awaitingStart) {
+                this.hideTitle();
+                this.start();
+                return;
+            }
+
             if (this.longPressFired) {
                 this.longPressFired = false;
                 return;
@@ -241,6 +305,7 @@ class Reader {
 
     start() {
 
+        if (this.awaitingStart) return;
         if (this.isRunning) return;
 
         this.isRunning = true;

@@ -83,15 +83,20 @@
 
         <section class="panel" id="panel-books">
             <div class="card form" style="margin-bottom:28px">
-                <h2 style="margin-bottom:14px">Kitap ekle</h2>
+                <h2 style="margin-bottom:14px" id="bookFormTitle">Kitap ekle / düzenle</h2>
+                <input id="bookId" type="hidden">
                 <label>Başlık</label>
                 <input id="title" type="text">
                 <label>Yazar</label>
                 <input id="author" type="text">
+                <label>Yıl</label>
+                <input id="year" type="number" placeholder="1865">
                 <label>Tür</label>
                 <input id="genre" type="text" placeholder="Roman, Polisiye...">
                 <label>Slug (alice, sherlock...)</label>
                 <input id="slug" type="text">
+                <label>Kapak görseli (URL veya assets/covers/alice.jpg)</label>
+                <input id="coverUrl" type="text" placeholder="assets/covers/alice.jpg">
                 <label>Kapak rengi</label>
                 <input id="cover" type="text" value="#1e3348">
                 <label>
@@ -100,6 +105,7 @@
                 <label>Metin</label>
                 <textarea id="content" rows="10"></textarea>
                 <button class="btn btn-blue" id="saveBook" type="button">Kaydet</button>
+                <button class="btn btn-ghost" id="newBook" type="button">Yeni kitap</button>
                 <p id="saveMsg" class="book-meta"></p>
             </div>
             <div class="card">

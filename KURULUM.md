@@ -71,6 +71,7 @@ Sıra zorunlu:
 Site zaten açıksa yalnız şunu çalıştır:
 
 4. `supabase/05_features.sql`  (üyeler, giriş logu, kelime önerisi)
+5. `supabase/06_update.sql`    (kapak, yıl, top 10 istatistik)
 
 Hata olursa ekran görüntüsünü at.
 

@@ -35,7 +35,7 @@ function lookupOne(word) {
         return dictionary[clean.slice(0, -3)];
     }
 
-    return "❌ Sözlükte bulunamadı.";
+    return "";
 }
 
 function loadDictionary() {
@@ -71,10 +71,13 @@ function getMeaning(text) {
         return dictionary[phrase];
     }
 
-    return words.map(function (w) {
-        const c = cleanWord(w);
-        if (!c) return "";
-        return c + " — " + lookupOne(w);
-    }).filter(Boolean).join("\n");
+    return "";
+}
 
+function splitToken(token) {
+    const m = String(token).match(/^([^A-Za-z']*)([A-Za-z']+)([^A-Za-z']*)$/);
+    if (!m) {
+        return { lead: "", word: token, trail: "" };
+    }
+    return { lead: m[1], word: m[2], trail: m[3] };
 }

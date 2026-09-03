@@ -144,7 +144,7 @@ a{color:inherit}
 .card p{color:var(--muted);line-height:1.55}
 
 .book-cover{
-    height:170px;
+    height:220px;
     border-radius:16px;
     display:flex;
     align-items:flex-end;
@@ -153,7 +153,11 @@ a{color:inherit}
     font-family:Fraunces,Georgia,serif;
     font-size:22px;
     line-height:1.15;
+    background-size:cover;
+    background-position:center;
 }
+.book-cover.img{align-items:stretch;padding:0;color:transparent}
+.card h3{margin:4px 0 6px;font-size:16px}
 
 .book-meta{color:var(--muted);font-size:13px}
 

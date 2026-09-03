@@ -21,17 +21,58 @@ function showTab(id) {
     });
 }
 
+let catalogCache = [];
+
+function fillBookForm(b) {
+    document.getElementById("bookId").value = b.id || "";
+    document.getElementById("title").value = b.title || "";
+    document.getElementById("author").value = b.author || "";
+    document.getElementById("year").value = b.year || "";
+    document.getElementById("genre").value = b.genre || "";
+    document.getElementById("slug").value = b.slug || "";
+    document.getElementById("coverUrl").value = b.cover_url || "";
+    document.getElementById("cover").value = b.cover_color || "#1e3348";
+    document.getElementById("copyrighted").checked = !!b.is_copyrighted;
+    document.getElementById("content").value = b.content || "";
+    document.getElementById("bookFormTitle").textContent = b.id ? "Kitabı düzenle" : "Kitap ekle";
+    showTab("books");
+}
+
+function clearBookForm() {
+    fillBookForm({});
+}
+
+function collectBook() {
+    const content = document.getElementById("content").value;
+    return {
+        title: document.getElementById("title").value.trim(),
+        author: document.getElementById("author").value.trim(),
+        year: parseInt(document.getElementById("year").value, 10) || null,
+        genre: document.getElementById("genre").value.trim(),
+        slug: document.getElementById("slug").value.trim().toLowerCase().replace(/\s+/g, "-"),
+        cover_url: document.getElementById("coverUrl").value.trim(),
+        cover_color: document.getElementById("cover").value.trim() || "#1e3348",
+        is_copyrighted: document.getElementById("copyrighted").checked,
+        is_published: true,
+        content: content,
+        word_count: content.split(/\s+/).filter(Boolean).length
+    };
+}
+
 async function renderBooks() {
     const books = await API.listAllBooksAdmin();
+    catalogCache = books;
     const tbody = document.querySelector("#bookTable tbody");
     tbody.innerHTML = "";
     books.forEach(function (b) {
         const tr = document.createElement("tr");
         tr.innerHTML =
-            "<td>" + b.title + "<div class='book-meta'>" + (b.author || "") + "</div></td>" +
+            "<td>" + b.title + "<div class='book-meta'>" + (b.author || "") + " " + (b.year || "") + "</div></td>" +
             "<td>" + (b.genre || "") + "</td>" +
             "<td>" + (b.is_copyrighted ? "<span class='lock'>kilitli</span>" : "kamu malı") + "</td>" +
-            "<td><a class='btn btn-ghost btn-sm' href='reader.html?book=" + encodeURIComponent(b.slug + ".txt") + "'>Oku</a></td>";
+            "<td><button class='btn btn-ghost btn-sm' type='button'>Düzenle</button> " +
+            "<a class='btn btn-ghost btn-sm' href='reader.html?book=" + encodeURIComponent(b.slug + ".txt") + "'>Oku</a></td>";
+        tr.querySelector("button").addEventListener("click", function () { fillBookForm(b); });
         tbody.appendChild(tr);
     });
 }
@@ -137,28 +178,21 @@ async function boot() {
 
     await Promise.all([renderBooks(), renderMembers(), renderLogs(), renderSuggestions()]);
 
+    document.getElementById("newBook").addEventListener("click", clearBookForm);
+
     document.getElementById("saveBook").addEventListener("click", async function () {
-        const title = document.getElementById("title").value.trim();
-        const slug = document.getElementById("slug").value.trim().toLowerCase().replace(/\s+/g, "-");
-        const content = document.getElementById("content").value;
-        if (!title || !slug || !content) {
+        const book = collectBook();
+        if (!book.title || !book.slug || !book.content) {
             document.getElementById("saveMsg").textContent = "Başlık, slug ve metin gerekli.";
             return;
         }
-        const words = content.split(/\s+/).filter(Boolean).length;
-        const { error } = await API.addBook({
-            title: title,
-            author: document.getElementById("author").value.trim(),
-            genre: document.getElementById("genre").value.trim(),
-            slug: slug,
-            cover_color: document.getElementById("cover").value.trim() || "#1e3348",
-            is_copyrighted: document.getElementById("copyrighted").checked,
-            is_published: true,
-            content: content,
-            word_count: words
-        });
-        document.getElementById("saveMsg").textContent = error ? error.message : "Kaydedildi.";
-        if (!error) await renderBooks();
+        const id = document.getElementById("bookId").value;
+        const res = id ? await API.updateBook(id, book) : await API.addBook(book);
+        document.getElementById("saveMsg").textContent = res.error ? res.error.message : "Kaydedildi.";
+        if (!res.error) {
+            await renderBooks();
+            if (!id) clearBookForm();
+        }
     });
 }
 

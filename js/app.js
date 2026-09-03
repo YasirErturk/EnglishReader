@@ -8,6 +8,7 @@ const settingsPanel = document.getElementById("settingsPanel");
 const speedSlider = document.getElementById("speedSlider");
 const fontSlider = document.getElementById("fontSlider");
 const lineSlider = document.getElementById("lineSlider");
+const speedValue = document.getElementById("speedValue");
 
 const textContainer = document.getElementById("textContainer");
 
@@ -23,25 +24,22 @@ async function init(){
     }
 
     const home = document.getElementById("homeButton");
-    if (home && API.session) {
-        home.href = "dashboard.html";
-    }
+    if (home) home.href = "index.html";
 
     await loadLibrary();
 
     loadSettings();
+    updateSpeedLabel();
 
     await reader.load();
 
 }
 
 document.addEventListener("popupClosed", () => {
-
-    reader.start();
-
+    if (!reader.awaitingStart) reader.start();
 });
 
-settingsButton.addEventListener("click", (e) => {
+if (settingsButton) settingsButton.addEventListener("click", (e) => {
 
     e.stopPropagation();
 
@@ -57,49 +55,62 @@ settingsButton.addEventListener("click", (e) => {
 
 document.addEventListener("click",(e)=>{
 
-    if(settingsPanel.contains(e.target)) return;
+    if(settingsPanel && settingsPanel.contains(e.target)) return;
 
-    if(libraryPanel.contains(e.target)) return;
+    if(libraryPanel && libraryPanel.contains(e.target)) return;
 
-    if(settingsButton.contains(e.target)) return;
+    if(settingsButton && settingsButton.contains(e.target)) return;
 
-    if(libraryButton.contains(e.target)) return;
+    if(libraryButton && libraryButton.contains(e.target)) return;
+
+    if (e.target.closest && e.target.closest("#speedNudge")) return;
 
     closePanels();
 
 });
 
-fontSlider.addEventListener("input", () => {
-
+if (fontSlider) fontSlider.addEventListener("input", () => {
     textContainer.style.fontSize = fontSlider.value + "px";
-
     saveSettings();
-
 });
 
-lineSlider.addEventListener("input", () => {
-
+if (lineSlider) lineSlider.addEventListener("input", () => {
     textContainer.style.lineHeight = lineSlider.value;
-
     saveSettings();
-
 });
 
-speedSlider.addEventListener("input", () => {
-
+if (speedSlider) speedSlider.addEventListener("input", () => {
     settings.speed = parseFloat(speedSlider.value);
-
+    updateSpeedLabel();
     saveSettings();
-
 });
+
+function bumpSpeed(delta) {
+    let v = parseFloat(speedSlider ? speedSlider.value : settings.speed) + delta;
+    v = Math.round(v * 10) / 10;
+    v = Math.max(0.2, Math.min(7, v));
+    settings.speed = v;
+    if (speedSlider) speedSlider.value = v;
+    updateSpeedLabel();
+    saveSettings();
+}
+
+function updateSpeedLabel() {
+    if (speedValue) speedValue.textContent = Number(settings.speed).toFixed(1);
+}
+
+const speedUp = document.getElementById("speedUp");
+const speedDown = document.getElementById("speedDown");
+if (speedUp) speedUp.addEventListener("click", (e) => { e.stopPropagation(); bumpSpeed(0.1); });
+if (speedDown) speedDown.addEventListener("click", (e) => { e.stopPropagation(); bumpSpeed(-0.1); });
 
 function saveSettings() {
 
     const data = {
 
-        speed: parseFloat(speedSlider.value),
-        font: parseInt(fontSlider.value),
-        line: parseFloat(lineSlider.value)
+        speed: parseFloat(speedSlider ? speedSlider.value : settings.speed),
+        font: parseInt(fontSlider ? fontSlider.value : 34, 10),
+        line: parseFloat(lineSlider ? lineSlider.value : 2.2)
 
     };
 
@@ -118,23 +129,23 @@ function loadSettings() {
 
     const data = JSON.parse(saved);
 
-    speedSlider.value = data.speed;
-    fontSlider.value = data.font;
-    lineSlider.value = data.line;
+    if (speedSlider) speedSlider.value = data.speed;
+    if (fontSlider) fontSlider.value = data.font;
+    if (lineSlider) lineSlider.value = data.line;
 
-    settings.speed = data.speed;
+    settings.speed = Number(data.speed);
 
-    textContainer.style.fontSize = data.font + "px";
-    textContainer.style.lineHeight = data.line;
+    if (textContainer) {
+        textContainer.style.fontSize = data.font + "px";
+        textContainer.style.lineHeight = data.line;
+    }
 
 }
-
-
 
 const libraryButton = document.getElementById("libraryButton");
 const libraryPanel = document.getElementById("libraryPanel");
 
-libraryButton.addEventListener("click",(e)=>{
+if (libraryButton) libraryButton.addEventListener("click",(e)=>{
 
     e.stopPropagation();
 
@@ -148,14 +159,11 @@ libraryButton.addEventListener("click",(e)=>{
 
 });
 
-
-
-
 function closePanels(){
 
     let closed = false;
 
-    if(settingsPanel.classList.contains("show")){
+    if(settingsPanel && settingsPanel.classList.contains("show")){
 
         settingsPanel.classList.remove("show");
 
@@ -163,7 +171,7 @@ function closePanels(){
 
     }
 
-    if(libraryPanel.classList.contains("show")){
+    if(libraryPanel && libraryPanel.classList.contains("show")){
 
         libraryPanel.classList.remove("show");
 
@@ -171,7 +179,7 @@ function closePanels(){
 
     }
 
-    if(closed){
+    if(closed && !reader.awaitingStart){
 
         reader.start();
 
@@ -179,10 +187,10 @@ function closePanels(){
 
 }
 
-
 async function loadLibrary(){
 
     const panel = document.getElementById("libraryPanel");
+    if (!panel) return;
 
     panel.innerHTML = "<h2>📚 Kitaplık</h2>";
 

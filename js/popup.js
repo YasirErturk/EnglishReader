@@ -9,6 +9,7 @@ class Popup {
         this.word = document.getElementById("popupWord");
         this.meaning = document.getElementById("popupMeaning");
         this.hint = document.getElementById("popupHint");
+        this.source = document.getElementById("popupSource");
         this.saveButton = document.getElementById("saveWordButton");
         this.suggestButton = document.getElementById("suggestWordButton");
 
@@ -29,44 +30,57 @@ class Popup {
                         if (!btn) return;
                         btn.textContent = ok ? "Kaydedildi" : "Giriş gerekli";
                     });
+                } else {
+                    this.saveButton.textContent = "Giriş gerekli";
                 }
             });
         }
 
         if (this.suggestButton) {
             this.suggestButton.addEventListener("click", (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                if (!(window.API && API.suggestWord)) return;
+                const btn = this.suggestButton;
+                btn.textContent = "Gönderiliyor…";
+                if (!(window.API && API.suggestWord)) {
+                    btn.textContent = "Giriş gerekli";
+                    return;
+                }
                 API.suggestWord(this.currentText, this.currentMeaning).then(function (result) {
-                    const btn = document.getElementById("suggestWordButton");
-                    if (!btn) return;
-                    btn.textContent = result.message;
+                    btn.textContent = (result && result.message) ? result.message : "Gönderilemedi";
+                }).catch(function () {
+                    btn.textContent = "Gönderilemedi";
                 });
             });
         }
 
     }
 
+    setChrome(open) {
+        document.body.classList.toggle("popup-open", open);
+    }
+
     show(text) {
         this.showWord(text);
     }
 
-    showWord(text) {
+    async showWord(text) {
 
         this.mode = "word";
         this.openPanelsClosed();
 
-        this.currentText = String(text || "").trim();
-        this.currentMeaning = getMeaning(this.currentText);
+        const display = (window.cleanWord ? cleanWord(text) : String(text || "").replace(/[^a-zA-Z']/g, "")) || String(text || "").trim();
+        this.currentText = display;
 
         if (this.kind) this.kind.textContent = "Kelime";
-        this.word.textContent = this.currentText;
-        this.meaning.textContent = this.currentMeaning;
+        this.word.textContent = display;
+        this.meaning.textContent = "Bakılıyor…";
+        if (this.source) this.source.textContent = "";
         if (this.hint) this.hint.textContent = "Basılı tutarak cümlenin çevirisini gör.";
 
         if (this.saveButton) {
             this.saveButton.style.display = "block";
-            this.saveButton.textContent = "Kelime defterine ekle";
+            this.saveButton.textContent = "Kelime defterime ekle";
         }
         if (this.suggestButton) {
             this.suggestButton.style.display = "block";
@@ -75,6 +89,20 @@ class Popup {
 
         this.popup.classList.add("show");
         this.overlay.classList.add("show");
+        this.setChrome(true);
+
+        const local = getMeaning(display);
+        if (local) {
+            this.currentMeaning = local;
+            this.meaning.textContent = local;
+            if (this.source) this.source.textContent = "Kaynak: sözlük";
+            return;
+        }
+
+        const translated = await translateSentence(display);
+        this.currentMeaning = translated;
+        this.meaning.textContent = translated;
+        if (this.source) this.source.textContent = translationSourceLabel();
 
     }
 
@@ -83,28 +111,29 @@ class Popup {
         this.mode = "sentence";
         this.openPanelsClosed();
 
-        this.currentText = String(heldWord || "").trim();
+        this.currentText = window.cleanWord ? cleanWord(heldWord) : String(heldWord || "").trim();
         sentence = String(sentence || "").replace(/\s+/g, " ").trim();
 
         if (this.kind) this.kind.textContent = "Cümle çevirisi";
         this.word.textContent = sentence;
         this.meaning.textContent = "Çevriliyor…";
-        if (this.hint) this.hint.textContent = "Kelimeye kısa tık: tek kelime. Basılı tut: cümle.";
+        if (this.source) this.source.textContent = "";
+        if (this.hint) this.hint.textContent = "Kısa tık: kelime. Basılı tut: cümle.";
 
         if (this.saveButton) this.saveButton.style.display = "none";
-        if (this.suggestButton) this.suggestButton.style.display = "none";
+        if (this.suggestButton) {
+            this.suggestButton.style.display = "block";
+            this.suggestButton.textContent = "Sözlüğe öner";
+        }
 
         this.popup.classList.add("show");
         this.overlay.classList.add("show");
+        this.setChrome(true);
 
         const translated = await translateSentence(sentence);
         this.meaning.textContent = translated;
         this.currentMeaning = translated;
-
-        if (this.suggestButton && this.currentText) {
-            this.suggestButton.style.display = "block";
-            this.suggestButton.textContent = "Bu kelimeyi sözlüğe öner";
-        }
+        if (this.source) this.source.textContent = translationSourceLabel();
 
     }
 
@@ -121,6 +150,7 @@ class Popup {
 
         this.popup.classList.remove("show");
         this.overlay.classList.remove("show");
+        this.setChrome(false);
 
         document
             .querySelectorAll(".word")

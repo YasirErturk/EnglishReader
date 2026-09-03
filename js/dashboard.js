@@ -102,8 +102,25 @@ async function boot() {
     tbody.innerHTML = "";
     words.forEach(function (w) {
         const tr = document.createElement("tr");
-        tr.innerHTML = "<td>" + w.word + "</td><td>" + (w.meaning_tr || "") + "</td>";
+        tr.innerHTML = "<td>" + w.word + "</td><td>" + (w.meaning_tr || "") + "</td><td><button class='btn btn-ghost btn-sm' type='button'>Sil</button></td>";
+        tr.querySelector("button").addEventListener("click", async function () {
+            await API.deleteWord(w.word);
+            tr.remove();
+        });
         tbody.appendChild(tr);
+    });
+
+    document.getElementById("resetProfile").addEventListener("click", async function () {
+        const ok = confirm("Okuma geçmişin, sürelerin ve kelime defterin silinecek. Emin misin?");
+        if (!ok) return;
+        const again = confirm("Son uyarı: bu işlem geri alınamaz.");
+        if (!again) return;
+        const res = await API.resetProfile();
+        if (res.error) {
+            alert(res.error);
+            return;
+        }
+        location.reload();
     });
 }
 

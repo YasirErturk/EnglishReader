@@ -17,15 +17,17 @@
             English Reader
         </a>
         <div class="nav-actions">
-            <a class="btn btn-ghost" href="reader.html">Önizleme</a>
+            <a class="btn btn-ghost" href="settings.html">Ayarlar</a>
+            <a class="btn btn-ghost" href="dashboard.html" id="panelLink" style="display:none">Panelim</a>
             <button class="btn btn-google" id="loginButton" type="button">Google ile giriş</button>
+            <button class="btn btn-ghost" id="logoutButton" type="button" style="display:none">Çıkış</button>
         </div>
     </nav>
 
-    <section class="hero">
+    <section class="hero" id="hero">
         <div>
             <h1>Kitap okurken <em>İngilizce</em> öğren.</h1>
-            <p class="lead">Metin kendi akar. Kelimeye dokun, anlamı gör. İstersen cümleyi seç, hepsini çevir. Üye olunca kaldığın yer, süren ve alışkanlıkların senin panelinde durur.</p>
+            <p class="lead">Metin senin hızında akar. Kelimeye tıkla, basılı tutunca cümleyi çevir. Üye olunca listen, tavsiyeler ve istatistiklerin burada durur.</p>
             <div class="hero-cta">
                 <button class="btn btn-google" id="loginButton2" type="button">Google ile başla</button>
                 <a class="btn btn-ghost" href="reader.html">Girişsiz dene</a>
@@ -38,27 +40,34 @@
         </div>
     </section>
 
-    <section class="section">
-        <h2>Nasıl işler</h2>
-        <div class="grid-3">
-            <article class="card">
-                <h3>1. Oku</h3>
-                <p>Metin senin hızında kayar. Sağdaki mavi çubuğu sürükleyerek istediğin yere atla.</p>
-            </article>
-            <article class="card">
-                <h3>2. Dokun / seç</h3>
-                <p>Tek kelimeye tıkla veya fareyle cümle seç. Türkçe karşılık altta açılır.</p>
-            </article>
-            <article class="card">
-                <h3>3. İzle</h3>
-                <p>Üye panelinde hangi kitabı kaç günde bitirdiğin, toplam süre ve sevdiğin türler durur.</p>
-            </article>
-        </div>
+    <section class="section" id="continueSection" style="display:none">
+        <h2>Okumaya devam</h2>
+        <div class="grid-books" id="myBooks"></div>
     </section>
 
     <section class="section">
-        <h2>Telif dışı kitaplık</h2>
-        <p class="sub" style="margin-top:-12px">Katalog kamu malı eserlerden oluşur. Telifli kitaplar yalnızca yöneticide görünür.</p>
+        <h2>Günün favorisi</h2>
+        <div class="grid-books" id="dayFav"></div>
+    </section>
+
+    <section class="section">
+        <h2>Haftanın en çok okunanı</h2>
+        <div class="grid-books" id="weekFav"></div>
+    </section>
+
+    <section class="section">
+        <h2>Top 10</h2>
+        <div class="grid-books" id="top10"></div>
+    </section>
+
+    <section class="section" id="recSection" style="display:none">
+        <h2>Sana tavsiye</h2>
+        <div class="grid-books" id="recommended"></div>
+    </section>
+
+    <section class="section">
+        <h2>Katalog</h2>
+        <p class="sub" style="margin-top:-12px">Kamu malı eserler. Telifliler yalnız yöneticide.</p>
         <div class="grid-books" id="publicBooks"></div>
     </section>
 </div>
