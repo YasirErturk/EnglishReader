@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+<div class="wrap">
+    <nav class="nav">
+        <a class="brand" href="index.html">
+            <img src="assets/logo.png" alt="">
+            English Reader
+        </a>
+        <div class="nav-actions">
+            <a class="btn btn-ghost" href="reader.html">Önizleme</a>
+            <button class="btn btn-google" id="loginButton" type="button">Google ile giriş</button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div>
+            <h1>Kitap okurken <em>İngilizce</em> öğren.</h1>
+            <p class="lead">Metin kendi akar. Kelimeye dokun, anlamı gör. İstersen cümleyi seç, hepsini çevir. Üye olunca kaldığın yer, süren ve alışkanlıkların senin panelinde durur.</p>
+            <div class="hero-cta">
+                <button class="btn btn-google" id="loginButton2" type="button">Google ile başla</button>
+                <a class="btn btn-ghost" href="reader.html">Girişsiz dene</a>
+            </div>
+        </div>
+        <div class="preview" aria-hidden="true">
+            <div class="kicker">Alice in Wonderland</div>
+            <p>Alice was beginning to get very <span class="hl">tired</span> of sitting by her sister on the bank, and of having nothing to do.</p>
+            <p style="margin-top:18px;color:#9a958b;font-size:16px">tired — yorgun</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Nasıl işler</h2>
+        <div class="grid-3">
+            <article class="card">
+                <h3>1. Oku</h3>
+                <p>Metin senin hızında kayar. Sağdaki mavi çubuğu sürükleyerek istediğin yere atla.</p>
+            </article>
+            <article class="card">
+                <h3>2. Dokun / seç</h3>
+                <p>Tek kelimeye tıkla veya fareyle cümle seç. Türkçe karşılık altta açılır.</p>
+            </article>
+            <article class="card">
+                <h3>3. İzle</h3>
+                <p>Üye panelinde hangi kitabı kaç günde bitirdiğin, toplam süre ve sevdiğin türler durur.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Telif dışı kitaplık</h2>
+        <p class="sub" style="margin-top:-12px">Katalog kamu malı eserlerden oluşur. Telifli kitaplar yalnızca yöneticide görünür.</p>
+        <div class="grid-books" id="publicBooks"></div>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="books/library.js"></script>
+<script src="js/landing.js"></script>
+</body>
+</html>

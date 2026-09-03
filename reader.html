@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>English Reader</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<a id="homeButton" href="index.html" title="Ana sayfa">⌂</a>
+
+<main id="reader">
+
+    <div id="textContainer">
+        Loading...
+    </div>
+
+</main>
+
+<div id="overlay"></div>
+
+<div id="popup">
+
+    <div id="popupHandle"></div>
+
+    <div id="popupWord"></div>
+
+    <div id="popupMeaning"></div>
+
+    <button id="saveWordButton" type="button">Kelime defterine ekle</button>
+
+</div>
+
+<div id="libraryPanel">
+
+    <h2>📚 Kitaplık</h2>
+
+</div>
+
+
+<div id="settingsPanel">
+
+    <h2>Okuma Ayarları</h2>
+
+    <div class="setting">
+
+        <label>⚡ Hız</label>
+
+        <input id="speedSlider" type="range" min="0.2" max="7" step="0.1" value="0.6">
+
+    </div>
+
+    <div class="setting">
+
+        <label>🔠 Yazı Boyutu</label>
+
+        <input id="fontSlider" type="range" min="20" max="60" step="1" value="34">
+
+    </div>
+
+    <div class="setting">
+
+        <label>↕️ Satır Aralığı</label>
+
+        <input id="lineSlider" type="range" min="1.2" max="3.5" step="0.1" value="2.2">
+
+    </div>
+
+</div>
+
+
+<div id="progressBar">
+    <div id="progressTrack">
+        <div id="progressFill"></div>
+        <div id="progressThumb"></div>
+    </div>
+</div>
+
+
+<button id="libraryButton">📚</button>
+<button id="settingsButton">⚙️</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="dictionary/tr.js"></script>
+<script src="books/library.js"></script>
+<script src="js/dictionary.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/popup.js"></script>
+<script src="js/reader.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+
+</html>

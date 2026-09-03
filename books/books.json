@@ -1,0 +1,42 @@
+[
+    {
+        "title": "Alice in Wonderland",
+        "file": "alice.txt"
+    },
+    {
+        "title": "A Scandal in Bohemia",
+        "file": "sherlock.txt"
+    },
+    {
+        "title": "Pride and Prejudice",
+        "file": "pride.txt"
+    },
+    {
+        "title": "Frankenstein",
+        "file": "frankenstein.txt"
+    },
+    {
+        "title": "Dracula",
+        "file": "dracula.txt"
+    },
+    {
+        "title": "Treasure Island",
+        "file": "treasure.txt"
+    },
+    {
+        "title": "The Time Machine",
+        "file": "timemachine.txt"
+    },
+    {
+        "title": "A Christmas Carol",
+        "file": "carol.txt"
+    },
+    {
+        "title": "The Picture of Dorian Gray",
+        "file": "dorian.txt"
+    },
+    {
+        "title": "The Great Gatsby",
+        "file": "gatsby.txt"
+    }
+]

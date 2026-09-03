@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yönetici · English Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+<div class="layout">
+    <aside class="side">
+        <a class="brand" href="dashboard.html" style="margin:8px 8px 22px">
+            <img src="assets/logo.png" alt="">
+            English Reader
+        </a>
+        <a href="dashboard.html">Panelim</a>
+        <a class="active" href="admin.html">Yönetici</a>
+        <a href="reader.html">Okuyucu</a>
+        <button class="navlink" id="logoutButton" type="button">Çıkış</button>
+    </aside>
+    <main class="main">
+        <h1 class="hello">Yönetici</h1>
+        <p class="sub">Telifli kitaplar burada kalır. Üyeler görmez, sen okursun.</p>
+
+        <div class="card form" style="margin-bottom:28px">
+            <h2 style="margin-bottom:14px">Kitap ekle</h2>
+            <label>Başlık</label>
+            <input id="title" type="text">
+            <label>Yazar</label>
+            <input id="author" type="text">
+            <label>Tür</label>
+            <input id="genre" type="text" placeholder="Roman, Polisiye...">
+            <label>Slug (alice, sherlock...)</label>
+            <input id="slug" type="text">
+            <label>Kapak rengi</label>
+            <input id="cover" type="text" value="#1e3348">
+            <label>
+                <input id="copyrighted" type="checkbox"> Telifli — yalnız yönetici görsün
+            </label>
+            <label>Metin</label>
+            <textarea id="content" rows="10"></textarea>
+            <button class="btn btn-blue" id="saveBook" type="button">Kaydet</button>
+            <p id="saveMsg" class="book-meta"></p>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom:14px">Katalog</h2>
+            <table class="table" id="bookTable">
+                <thead><tr><th>Kitap</th><th>Tür</th><th>Telif</th><th></th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

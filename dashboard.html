@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel · English Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+<div class="layout">
+    <aside class="side">
+        <a class="brand" href="dashboard.html" style="margin:8px 8px 22px">
+            <img src="assets/logo.png" alt="">
+            English Reader
+        </a>
+        <a class="active" href="dashboard.html">Panelim</a>
+        <a href="reader.html">Okumaya dön</a>
+        <a href="admin.html" id="adminLink" style="display:none">Yönetici</a>
+        <button class="navlink" id="logoutButton" type="button">Çıkış</button>
+        <div class="user-chip" id="userChip"></div>
+    </aside>
+    <main class="main">
+        <h1 class="hello" id="hello">Merhaba</h1>
+        <p class="sub">Okuma geçmişin, süren ve kelime defterin burada.</p>
+
+        <div class="card continue" id="continueCard" style="display:none">
+            <div>
+                <div class="book-meta">Kaldığın yer</div>
+                <h3 id="continueTitle"></h3>
+                <p class="book-meta" id="continueMeta"></p>
+            </div>
+            <a class="btn btn-blue" id="continueButton" href="reader.html">Devam et</a>
+        </div>
+
+        <div class="grid-4" id="stats"></div>
+
+        <section class="section" style="padding-top:36px">
+            <h2>Kitapların</h2>
+            <div class="grid-books" id="myBooks"></div>
+        </section>
+
+        <section class="section" style="padding-top:0">
+            <h2>Kelime defteri</h2>
+            <div class="card">
+                <table class="table" id="wordsTable">
+                    <thead><tr><th>Kelime</th><th>Anlam</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
