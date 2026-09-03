@@ -83,6 +83,12 @@ function loadDictionary() {
 
     dictionary = typeof DICTIONARY !== "undefined" ? Object.assign({}, DICTIONARY) : {};
 
+    if (window.DICT_EXTRA) {
+        Object.keys(DICT_EXTRA).forEach(function (k) {
+            if (!dictionary[k]) dictionary[k] = DICT_EXTRA[k];
+        });
+    }
+
     if (window.DICT_FIXES) {
         Object.keys(DICT_FIXES).forEach(function (k) {
             dictionary[k] = DICT_FIXES[k];

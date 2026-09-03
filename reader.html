@@ -10,10 +10,11 @@
 <title>English Reader</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="icon" href="assets/logo.png">
 
 </head>
 
-<body>
+<body data-paper="cream">
 
 <a id="homeButton" href="index.html" title="Ana sayfa">
     <img src="assets/logo.png" alt="">
@@ -35,6 +36,29 @@
     <p id="titleHint">Ekrana dokunarak okumaya başla</p>
 </div>
 
+<div id="gateCard" class="sheet">
+    <p class="sheetKicker">English Reader</p>
+    <h2 id="gateTitle">Bu kitap üyelere açık</h2>
+    <p id="gateText">Katalog Google üyeliğiyle açılır. Üye olmadan Alice’ten birkaç sayfa okuyabilirsin.</p>
+    <div class="sheetActions">
+        <button class="sheetBtn" id="gateLogin" type="button">Google ile üye ol</button>
+        <a class="sheetBtn ghost" id="gatePlans" href="index.html">Ana sayfa</a>
+        <a class="sheetBtn ghost" id="gateDemo" href="reader.html?book=alice.txt">Alice’i dene</a>
+    </div>
+</div>
+
+<div id="finishCard" class="sheet">
+    <p class="sheetKicker">Bitti</p>
+    <h2 id="finishName"></h2>
+    <p>Bu kitabı tamamladın. Ana sayfadan yenisine geçebilir veya baştan okuyabilirsin.</p>
+    <div class="sheetActions">
+        <button class="sheetBtn" id="finishHome" type="button">Ana sayfa</button>
+        <a class="sheetBtn ghost" id="finishNext" href="index.html#katalog">Başka kitap</a>
+        <button class="sheetBtn ghost" id="finishAgain" type="button">Baştan oku</button>
+        <button class="sheetBtn ghost" id="finishJoin" type="button">Üye ol</button>
+    </div>
+</div>
+
 <div id="overlay"></div>
 
 <div id="popup">
@@ -49,20 +73,19 @@
 
     <div id="popupSource"></div>
 
-    <div id="suggestBox">
-        <label for="suggestMeaning">Bu metindeki anlam (isteğe bağlı)</label>
-        <textarea id="suggestMeaning" rows="2" placeholder="Farklı bir anlamda kullanıldıysa yaz"></textarea>
-    </div>
-
     <button id="saveWordButton" type="button">Kelime defterime ekle</button>
 
-    <button id="suggestWordButton" type="button">Sözlüğe öner</button>
+    <details id="suggestBox">
+        <summary>Anlamı öner</summary>
+        <input id="suggestMeaning" type="text" placeholder="Kısa düzeltme">
+        <button id="suggestWordButton" type="button">Gönder</button>
+    </details>
 
 </div>
 
 <div id="libraryPanel">
 
-    <h2>📚 Kitaplık</h2>
+    <h2>Kitaplık</h2>
 
 </div>
 
@@ -73,7 +96,7 @@
 
     <div class="setting">
 
-        <label>⚡ Hız</label>
+        <label>Hız</label>
 
         <input id="speedSlider" type="range" min="0.2" max="7" step="0.1" value="0.6">
 
@@ -81,7 +104,7 @@
 
     <div class="setting">
 
-        <label>🔠 Yazı Boyutu</label>
+        <label>Yazı boyutu</label>
 
         <input id="fontSlider" type="range" min="20" max="60" step="1" value="34">
 
@@ -89,9 +112,22 @@
 
     <div class="setting">
 
-        <label>↕️ Satır Aralığı</label>
+        <label>Satır aralığı</label>
 
         <input id="lineSlider" type="range" min="1.2" max="3.5" step="0.1" value="2.2">
+
+    </div>
+
+    <div class="setting">
+
+        <label>Sayfa rengi</label>
+
+        <div id="paperSwatches" class="swatches">
+            <button type="button" data-paper="cream" title="Krem"></button>
+            <button type="button" data-paper="paper" title="Beyaz"></button>
+            <button type="button" data-paper="sage" title="Adaçayı"></button>
+            <button type="button" data-paper="night" title="Gece"></button>
+        </div>
 
     </div>
 
@@ -131,8 +167,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+<script src="js/access.js"></script>
 <script src="js/api.js"></script>
 <script src="dictionary/tr.js"></script>
+<script src="dictionary/extra.js"></script>
 <script src="dictionary/fixes.js"></script>
 <script src="books/library.js"></script>
 <script src="js/dictionary.js"></script>

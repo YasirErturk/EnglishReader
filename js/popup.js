@@ -8,7 +8,6 @@ class Popup {
         this.kind = document.getElementById("popupKind");
         this.word = document.getElementById("popupWord");
         this.meaning = document.getElementById("popupMeaning");
-        this.hint = document.getElementById("popupHint");
         this.source = document.getElementById("popupSource");
         this.saveButton = document.getElementById("saveWordButton");
         this.suggestButton = document.getElementById("suggestWordButton");
@@ -52,10 +51,25 @@ class Popup {
             });
         }
 
+        if (this.suggestBox) {
+            this.suggestBox.addEventListener("click", function (e) {
+                e.stopPropagation();
+            });
+        }
+
     }
 
     setChrome(open) {
         document.body.classList.toggle("popup-open", open);
+    }
+
+    resetSuggest() {
+        if (this.suggestBox) {
+            this.suggestBox.open = false;
+            this.suggestBox.style.display = "none";
+        }
+        if (this.suggestInput) this.suggestInput.value = "";
+        if (this.suggestButton) this.suggestButton.textContent = "Gönder";
     }
 
     show(text) {
@@ -75,18 +89,13 @@ class Popup {
         this.word.textContent = display;
         this.meaning.textContent = "Bakılıyor…";
         if (this.source) this.source.textContent = "";
-        if (this.hint) this.hint.textContent = "";
 
         if (this.saveButton) {
             this.saveButton.style.display = "block";
             this.saveButton.textContent = "Kelime defterime ekle";
         }
-        if (this.suggestButton) {
-            this.suggestButton.style.display = "block";
-            this.suggestButton.textContent = "Sözlüğe öner";
-        }
+        this.resetSuggest();
         if (this.suggestBox) this.suggestBox.style.display = "block";
-        if (this.suggestInput) this.suggestInput.value = "";
 
         this.popup.classList.add("show");
         this.overlay.classList.add("show");
@@ -120,15 +129,9 @@ class Popup {
         this.word.textContent = sentence;
         this.meaning.textContent = "Çevriliyor…";
         if (this.source) this.source.textContent = "";
-        if (this.hint) this.hint.textContent = "";
 
         if (this.saveButton) this.saveButton.style.display = "none";
-        if (this.suggestButton) {
-            this.suggestButton.style.display = "block";
-            this.suggestButton.textContent = "Sözlüğe öner";
-        }
-        if (this.suggestBox) this.suggestBox.style.display = "block";
-        if (this.suggestInput) this.suggestInput.value = "";
+        this.resetSuggest();
 
         this.popup.classList.add("show");
         this.overlay.classList.add("show");

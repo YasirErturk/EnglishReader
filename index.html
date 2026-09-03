@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>English Reader</title>
+<title>English Reader — Kitap okurken İngilizce öğren</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/site.css">
@@ -19,24 +19,38 @@
         <div class="nav-actions">
             <a class="btn btn-ghost" href="settings.html">Ayarlar</a>
             <a class="btn btn-ghost" href="dashboard.html" id="panelLink" style="display:none">Panelim</a>
-            <button class="btn btn-google" id="loginButton" type="button">Google ile giriş</button>
+            <button class="btn btn-google" id="loginButton" type="button">Google ile üye ol</button>
             <button class="btn btn-ghost" id="logoutButton" type="button" style="display:none">Çıkış</button>
         </div>
     </nav>
 
     <section class="hero" id="hero">
         <div>
-            <h1>Kitap okurken <em>İngilizce</em> öğren.</h1>
-            <p class="lead">Metin senin hızında akar. Kelimeye tıkla, basılı tutunca cümleyi çevir. Üye olunca listen, tavsiyeler ve istatistiklerin burada durur.</p>
+            <h1>Kitap oku, <em>İngilizcen</em> gelişsin.</h1>
+            <p class="lead">Klasik eserler senin hızında akar. Kelimeye dokun, basılı tutunca cümleyi gör. Eğitim için kuruldu: her gün birkaç sayfa yeter.</p>
             <div class="hero-cta">
-                <button class="btn btn-google" id="loginButton2" type="button">Google ile başla</button>
-                <a class="btn btn-ghost" href="reader.html">Girişsiz dene</a>
+                <button class="btn btn-blue" id="loginButton2" type="button">Üye ol, kitaplara geç</button>
+                <a class="btn btn-ghost" href="reader.html?book=alice.txt">Alice’i üyesiz dene</a>
             </div>
         </div>
-        <div class="preview" aria-hidden="true">
-            <div class="kicker">Alice in Wonderland</div>
-            <p>Alice was beginning to get very <span class="hl">tired</span> of sitting by her sister on the bank, and of having nothing to do.</p>
-            <p style="margin-top:18px;color:#9a958b;font-size:16px">tired — yorgun</p>
+        <img class="hero-photo" src="assets/hero-study.jpg" alt="Güneşli bir masada açık kitap">
+    </section>
+
+    <section class="steps" id="how">
+        <div class="step">
+            <b>1</b>
+            <h3>Üye ol</h3>
+            <p>Google ile bir dokunuş. Katalog ve ilerlemen hesabında durur.</p>
+        </div>
+        <div class="step">
+            <b>2</b>
+            <h3>Oku</h3>
+            <p>Metin akar. Anlamadığın kelimeye tıkla, cümle için basılı tut.</p>
+        </div>
+        <div class="step">
+            <b>3</b>
+            <h3>Öğren</h3>
+            <p>Kelime defterin ve bitirdiğin kitaplar panelinde birikir.</p>
         </div>
     </section>
 
@@ -67,10 +81,10 @@
         <div class="grid-books" id="recommended"></div>
     </section>
 
-    <section class="section">
+    <section class="section" id="katalog">
         <div class="section-head">
             <h2>Katalog</h2>
-            <p class="sub">Kamu malı eserler. Telifliler yalnız yöneticide.</p>
+            <p class="sub">Kamu malı klasikler. Üye olmadan yalnız Alice önizlemesi.</p>
         </div>
         <div class="grid-books" id="publicBooks"></div>
     </section>
@@ -78,6 +92,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+<script src="js/access.js"></script>
 <script src="js/api.js"></script>
 <script src="books/library.js"></script>
 <script src="js/landing.js"></script>

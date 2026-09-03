@@ -36,7 +36,7 @@ async function init(){
 }
 
 document.addEventListener("popupClosed", () => {
-    if (!reader.awaitingStart) reader.start();
+    if (!reader.awaitingStart && !reader.gateOpen && !reader.finishedShown) reader.start();
 });
 
 if (settingsButton) settingsButton.addEventListener("click", (e) => {
@@ -114,7 +114,8 @@ function saveSettings() {
         speed: parseFloat(speedSlider ? speedSlider.value : settings.speed),
         font: parseInt(fontSlider ? fontSlider.value : 34, 10),
         line: parseFloat(lineSlider ? lineSlider.value : 2.2),
-        dictStyle: (document.getElementById("dictStyle") || {}).value || "simple"
+        dictStyle: (document.getElementById("dictStyle") || {}).value || "simple",
+        paper: document.body.getAttribute("data-paper") || "cream"
 
     };
 
@@ -141,12 +142,31 @@ function loadSettings() {
 
     settings.speed = Number(data.speed);
 
+    applyPaper(data.paper || "cream");
+
     if (textContainer) {
         textContainer.style.fontSize = data.font + "px";
         textContainer.style.lineHeight = data.line;
     }
 
 }
+
+function applyPaper(name) {
+    const allowed = { cream: 1, paper: 1, sage: 1, night: 1 };
+    const paper = allowed[name] ? name : "cream";
+    document.body.setAttribute("data-paper", paper);
+    document.querySelectorAll("#paperSwatches button").forEach(function (btn) {
+        btn.classList.toggle("on", btn.getAttribute("data-paper") === paper);
+    });
+}
+
+document.querySelectorAll("#paperSwatches button").forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        applyPaper(btn.getAttribute("data-paper"));
+        saveSettings();
+    });
+});
 
 const libraryButton = document.getElementById("libraryButton");
 const libraryPanel = document.getElementById("libraryPanel");
@@ -222,13 +242,16 @@ async function loadLibrary(){
 
         div.className="book";
 
-        div.innerText=book.title;
+        const file = book.file;
+        const locked = !canReadFull() && !isDemoBook(file);
+        div.innerText = book.title + (locked ? " · üye" : "");
+        if (locked) div.classList.add("locked");
 
         div.onclick=()=>{
 
-            localStorage.setItem("currentBook",book.file);
+            localStorage.setItem("currentBook", file);
 
-            location.href = "reader.html?book=" + encodeURIComponent(book.file);
+            location.href = "reader.html?book=" + encodeURIComponent(file);
 
         };
 

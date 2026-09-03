@@ -25,7 +25,7 @@ API.getSession = async function () {
     return API.session;
 };
 
-API.signInGoogle = async function () {
+API.signInGoogle = async function (next) {
     if (!API.client) {
         alert("Supabase henüz bağlanmadı.\nKURULUM.md dosyasındaki adımları bitir, js/config.js içine anahtarları yapıştır.");
         return;
@@ -33,7 +33,7 @@ API.signInGoogle = async function () {
     const { error } = await API.client.auth.signInWithOAuth({
         provider: "google",
         options: {
-            redirectTo: appBase() + "index.html"
+            redirectTo: next || (appBase() + "index.html")
         }
     });
     if (error) alert(error.message);

@@ -5,9 +5,9 @@
     }
     
     body{
-    background:#111;
-    color:#fff;
-    font-family:Arial,Helvetica,sans-serif;
+    background:#f3ead8;
+    color:#1c1914;
+    font-family:Georgia,"Times New Roman",serif;
     overflow:hidden;
     }
     
@@ -28,7 +28,7 @@
     font-size:34px;
     line-height:2.2;
     padding-top:36px;
-    padding-bottom:100vh;
+    padding-bottom:42vh;
     user-select:none;
     -webkit-user-select:none;
     -webkit-touch-callout:none;
@@ -731,6 +731,162 @@ body.popup-open #speedNudge{
 .settings-link{
     display:block;
     margin-top:8px;
-    color:#8eb4ff;
+    color:#2c6e57;
     text-decoration:none;
 }
+
+.swatches{display:flex;gap:10px}
+.swatches button{
+    width:36px;height:36px;border-radius:50%;
+    border:2px solid transparent;cursor:pointer;
+}
+.swatches button.on{border-color:#1c1914;box-shadow:0 0 0 2px #fff inset}
+.swatches [data-paper="cream"]{background:#f3ead8}
+.swatches [data-paper="paper"]{background:#fffaf2}
+.swatches [data-paper="sage"]{background:#dce8df}
+.swatches [data-paper="night"]{background:#1c1b19}
+
+#suggestBox{
+    margin-top:14px;
+    font-size:13px;
+    color:#8a8378;
+}
+#suggestBox summary{
+    cursor:pointer;
+    list-style:none;
+    color:#8a8378;
+}
+#suggestBox summary::-webkit-details-marker{display:none}
+#suggestBox[open] summary{margin-bottom:8px}
+#suggestMeaning{
+    width:100%;
+    background:transparent;
+    color:inherit;
+    border:none;
+    border-bottom:1px solid #ccc;
+    padding:8px 0;
+    font:inherit;
+    margin-bottom:8px;
+}
+#suggestWordButton{
+    width:auto;
+    padding:8px 14px;
+    background:transparent;
+    color:inherit;
+    border:1px solid #aaa;
+    border-radius:999px;
+    font-size:13px;
+    cursor:pointer;
+}
+
+.sheet{
+    position:fixed;
+    inset:0;
+    z-index:960;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:40px 24px;
+    background:rgba(243,234,216,.96);
+    color:#1c1914;
+}
+.sheet.show{display:flex}
+.sheetKicker{
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:#7a6f60;
+    margin-bottom:12px;
+    font-family:Arial,sans-serif;
+}
+.sheet h2{
+    font-size:clamp(28px,5vw,48px);
+    max-width:16ch;
+    line-height:1.15;
+    margin-bottom:14px;
+}
+.sheet p{max-width:36ch;color:#5c564c;line-height:1.5;font-family:Arial,sans-serif}
+.sheetActions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:28px}
+.sheetBtn{
+    display:inline-flex;align-items:center;justify-content:center;
+    border:none;border-radius:999px;padding:12px 18px;
+    background:#2c6e57;color:#fff;text-decoration:none;cursor:pointer;
+    font-family:Arial,sans-serif;font-weight:600;font-size:14px;
+}
+.sheetBtn.ghost{background:transparent;color:#1c1914;border:1px solid #cbbfa8}
+
+.endSentinel{
+    text-align:center;
+    font-size:14px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:#9a9082;
+    margin:48px 0 12px;
+    font-family:Arial,sans-serif;
+}
+
+#homeButton{
+    background:#fffaf2;
+    color:#1c1914;
+}
+
+#popup{
+    background:#fffaf2;
+    color:#1c1914;
+}
+#popupMeaning{color:#3a342c}
+#popupKind,#popupSource{color:#7a6f60}
+#popupSource{color:#2c6e57}
+#saveWordButton{background:#2c6e57}
+
+#settingsPanel,#libraryPanel{background:#fffaf2;color:#1c1914}
+.book{background:#efe4ce;color:#1c1914}
+.book:hover{background:#e6d7b8}
+.setting select,.setting input{
+    background:#fff;color:#1c1914;
+}
+
+#speedNudge{background:#fffaf2;color:#1c1914}
+#speedNudge button{background:#2c6e57}
+
+#progressTrack{background:#d9ccb4}
+#progressFill,#progressThumb{background:#2c6e57}
+
+#titleCard{background:rgba(243,234,216,.96);color:#1c1914}
+#titleMeta,#titleHint{color:#7a6f60}
+
+body[data-paper="paper"]{background:#fffaf2;color:#1a1916}
+body[data-paper="sage"]{background:#e7efe8;color:#1a2a22}
+body[data-paper="night"]{
+    background:#161513;color:#f3eee6;
+}
+body[data-paper="night"] #homeButton,
+body[data-paper="night"] #speedNudge,
+body[data-paper="night"] #popup,
+body[data-paper="night"] #settingsPanel,
+body[data-paper="night"] #libraryPanel{
+    background:#22201c;color:#f3eee6;
+}
+body[data-paper="night"] #popupMeaning{color:#ddd6c8}
+body[data-paper="night"] .book{background:#2a2722;color:#f3eee6}
+body[data-paper="night"] .sheet,
+body[data-paper="night"] #titleCard{
+    background:rgba(22,21,19,.96);color:#f3eee6;
+}
+body[data-paper="night"] .sheet p,
+body[data-paper="night"] #titleMeta,
+body[data-paper="night"] #titleHint{color:#a39b8f}
+body[data-paper="night"] .sheetBtn.ghost{color:#f3eee6;border-color:#4a453c}
+body[data-paper="night"] #progressTrack{background:#2f2c28}
+body[data-paper="night"] .word:hover{background:#c9a227;color:#1c1914}
+body[data-paper="night"] #homeButton{color:#f3eee6}
+
+body.popup-open #libraryButton,
+body.popup-open #settingsButton,
+body.popup-open #speedNudge{
+    opacity:0;
+    pointer-events:none;
+}
+

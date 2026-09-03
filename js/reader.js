@@ -5,6 +5,8 @@ class Reader {
         this.reader = document.getElementById("reader");
         this.container = document.getElementById("textContainer");
         this.titleCard = document.getElementById("titleCard");
+        this.gateCard = document.getElementById("gateCard");
+        this.finishCard = document.getElementById("finishCard");
 
         this.popup = popup;
         this.settings = settings;
@@ -19,11 +21,16 @@ class Reader {
         this.draggingProgress = false;
         this.longPressFired = false;
         this.pressTimer = null;
+        this.demoMode = false;
+        this.finishedShown = false;
+        this.gateOpen = false;
 
         this.reader.addEventListener("click", (e) => {
 
             if (e.target.classList.contains("word")) return;
             if (this.draggingProgress) return;
+            if (this.gateOpen) return;
+            if (this.finishedShown) return;
             if (e.target.closest && e.target.closest("#speedNudge")) return;
 
             if (this.awaitingStart) {
@@ -43,16 +50,64 @@ class Reader {
         if (this.titleCard) {
             this.titleCard.addEventListener("click", (e) => {
                 e.stopPropagation();
+                if (this.gateOpen) return;
                 this.hideTitle();
                 this.start();
             });
         }
+
+        this.bindGate();
+        this.bindFinish();
 
         this.reader.addEventListener("selectstart", (e) => e.preventDefault());
         this.reader.addEventListener("dragstart", (e) => e.preventDefault());
 
         this.bindProgressBar();
 
+    }
+
+    bindGate() {
+        const login = document.getElementById("gateLogin");
+        const plans = document.getElementById("gatePlans");
+        const demo = document.getElementById("gateDemo");
+        if (login) login.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (window.API) API.signInGoogle(location.href);
+        });
+        if (plans) plans.addEventListener("click", function (e) {
+            e.stopPropagation();
+            location.href = "index.html";
+        });
+        if (demo) demo.addEventListener("click", function (e) {
+            e.stopPropagation();
+            location.href = "reader.html?book=alice.txt";
+        });
+    }
+
+    bindFinish() {
+        const home = document.getElementById("finishHome");
+        const next = document.getElementById("finishNext");
+        const again = document.getElementById("finishAgain");
+        if (home) home.addEventListener("click", function (e) {
+            e.stopPropagation();
+            location.href = "index.html";
+        });
+        if (next) next.addEventListener("click", function (e) {
+            e.stopPropagation();
+            location.href = "index.html#katalog";
+        });
+        if (again) again.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.hideFinish();
+            this.reader.scrollTop = 0;
+            this.start();
+        });
+        const join = document.getElementById("finishJoin");
+        if (join) join.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (window.API) API.signInGoogle(appBase() + "index.html");
+            else location.href = "index.html";
+        });
     }
 
     showTitle(book) {
@@ -73,6 +128,7 @@ class Reader {
         if (name) name.textContent = book.title || "";
         if (meta) {
             const bits = [book.author, book.year, book.genre].filter(Boolean);
+            if (this.demoMode) bits.push("önizleme");
             meta.textContent = bits.join(" · ");
         }
         this.titleCard.classList.add("show");
@@ -82,6 +138,52 @@ class Reader {
     hideTitle() {
         this.awaitingStart = false;
         if (this.titleCard) this.titleCard.classList.remove("show");
+    }
+
+    showGate(kind) {
+        this.gateOpen = true;
+        this.awaitingStart = true;
+        this.stop();
+        if (this.titleCard) this.titleCard.classList.remove("show");
+        const card = this.gateCard;
+        if (!card) return;
+        const title = document.getElementById("gateTitle");
+        const text = document.getElementById("gateText");
+        const demo = document.getElementById("gateDemo");
+        if (kind === "locked") {
+            if (title) title.textContent = "Bu kitap üyelere açık";
+            if (text) text.textContent = "Katalog Google üyeliğiyle açılır. Üye olmadan Alice’ten birkaç sayfa okuyabilirsin.";
+            if (demo) demo.style.display = "inline-flex";
+        } else {
+            if (title) title.textContent = "Önizleme bitti";
+            if (text) text.textContent = "Alice’in ilk sayfalarını okudun. Devamı ve diğer kitaplar üyelikle açılır.";
+            if (demo) demo.style.display = "none";
+        }
+        card.classList.add("show");
+    }
+
+    showFinish() {
+        this.finishedShown = true;
+        this.stop();
+        if (this.demoMode && !canReadFull()) {
+            this.showGate("preview");
+            return;
+        }
+        const card = this.finishCard;
+        if (!card) return;
+        const name = document.getElementById("finishName");
+        if (name && this.currentMeta) name.textContent = this.currentMeta.title || "";
+        const join = document.getElementById("finishJoin");
+        if (join) join.style.display = canReadFull() ? "none" : "inline-flex";
+        card.classList.add("show");
+        if (window.API && API.saveProgress) {
+            API.saveProgress(this.currentBook, this.reader.scrollTop, 100);
+        }
+    }
+
+    hideFinish() {
+        this.finishedShown = false;
+        if (this.finishCard) this.finishCard.classList.remove("show");
     }
 
     bindProgressBar() {
@@ -137,6 +239,7 @@ class Reader {
             this.draggingProgress = false;
             bar.classList.remove("dragging");
             this.savePosition();
+            this.checkFinish();
 
         };
 
@@ -162,6 +265,16 @@ class Reader {
 
         localStorage.setItem("currentBook", this.currentBook);
 
+        const fullOk = canReadFull();
+        const demo = isDemoBook(this.currentBook);
+        this.demoMode = demo && !fullOk;
+
+        if (!fullOk && !demo) {
+            this.showGate("locked");
+            if (this.container) this.container.innerHTML = "";
+            return;
+        }
+
         let book = LIBRARY.find(b => b.file === this.currentBook) || LIBRARY[0] || {};
 
         if (window.API && API.configured) {
@@ -182,10 +295,13 @@ class Reader {
             } catch (err) {}
         }
 
+        let text = book.text || "";
+        if (this.demoMode) text = excerptText(text);
+
         this.currentMeta = book;
-        this.create(book.text || "");
+        this.create(text);
         this.showTitle(book);
-        this.restorePosition();
+        if (!this.demoMode) this.restorePosition();
 
         this.reader.addEventListener("scroll", () => {
 
@@ -196,6 +312,8 @@ class Reader {
                 this.savePosition();
 
                 this.updateProgress();
+
+                this.checkFinish();
 
             }, 100);
 
@@ -250,6 +368,12 @@ class Reader {
 
         });
 
+        const end = document.createElement("div");
+        end.id = "endSentinel";
+        end.className = "endSentinel";
+        end.textContent = this.demoMode ? "Önizlemenin sonu" : "Son";
+        this.container.append(end);
+
     }
 
     bindWord(span) {
@@ -263,7 +387,7 @@ class Reader {
 
         const startPress = (e) => {
             if (e.button && e.button !== 0) return;
-            if (this.awaitingStart) return;
+            if (this.awaitingStart || this.gateOpen || this.finishedShown) return;
             this.longPressFired = false;
             clearPress();
             this.pressTimer = setTimeout(() => {
@@ -312,7 +436,7 @@ class Reader {
 
     start() {
 
-        if (this.awaitingStart) return;
+        if (this.awaitingStart || this.gateOpen || this.finishedShown) return;
         if (this.isRunning) return;
 
         this.isRunning = true;
@@ -325,6 +449,7 @@ class Reader {
             this.reader.scrollTop += this.settings.speed;
 
             this.updateProgress();
+            this.checkFinish();
 
             this.animation = requestAnimationFrame(animate);
 
@@ -349,6 +474,8 @@ class Reader {
     }
 
     savePosition() {
+
+        if (this.demoMode || this.gateOpen) return;
 
         const max =
             this.reader.scrollHeight -
@@ -376,7 +503,7 @@ class Reader {
 
         if (window.API && API.loadProgress) {
             API.loadProgress(this.currentBook).then((data) => {
-                if (!data) return;
+                if (!data || this.demoMode) return;
                 this.reader.scrollTop = Number(data.scroll_top || 0);
                 this.updateProgress();
             }).catch(function () {});
@@ -397,6 +524,15 @@ class Reader {
             API.addReadingTime(this.currentBook, seconds);
         }
 
+    }
+
+    checkFinish() {
+        if (this.awaitingStart || this.gateOpen || this.finishedShown) return;
+        const max = this.reader.scrollHeight - this.reader.clientHeight;
+        if (max <= 40) return;
+        if (this.reader.scrollTop >= max - 12) {
+            this.showFinish();
+        }
     }
 
     updateProgress() {

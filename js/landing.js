@@ -14,7 +14,8 @@ function coverVisual(book, tall) {
 }
 
 function coverHtml(book, extra) {
-    return '<a class="card" href="' + bookHref(book) + '" style="text-decoration:none">' +
+    const locked = typeof canReadFull === "function" && !canReadFull() && !isDemoBook(book.file || book.slug);
+    return '<a class="card' + (locked ? " locked-card" : "") + '" href="' + bookHref(book) + '" style="text-decoration:none">' +
         coverVisual(book) +
         "<h3>" + (book.title || "") + "</h3>" +
         '<div class="book-meta">' + [book.author, book.year, extra].filter(Boolean).join(" · ") + "</div></a>";
@@ -124,6 +125,8 @@ async function boot() {
             document.getElementById("logoutButton").style.display = "inline-flex";
             document.getElementById("panelLink").style.display = "inline-flex";
             document.getElementById("hero").style.display = "none";
+            const how = document.getElementById("how");
+            if (how) how.style.display = "none";
             mine = await API.myProgress();
         }
         stats = await API.bookStats();

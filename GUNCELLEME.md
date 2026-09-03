@@ -1,46 +1,33 @@
 # Bu tur
 
 1. **`js/config.js` üzerine yazma.** Zip’te yok.
-2. Zip içeriğini `D:/Programlar/EnglishReader` üzerine kopyala (replace all).
-3. Supabase SQL Editor, sırayla (daha önce çalıştıysa atla):
-   - `supabase/05_features.sql` (hiç çalışmadıysa)
-   - `supabase/06_update.sql`
-   - `supabase/07_update.sql`  ← bu tur zorunlu (hesap silme + öneri bağlamı + depth/width)
+2. Zip’i klasöre kopyala (replace all).
+3. SQL: `05` hiç koşmadıysa onu, sonra `06`, sonra `07`.
 
-Silinen dosya yok.
+Silinen dosya: `js/plans.js` (kullanılmıyordu).
 
-## Okuyucu
+## Üyelik kapısı
 
-- Ana sayfa butonu logo + “Ana sayfa”.
-- Hız sağda dikey: **+** üstte (daha hızlı), değer, **−**.
-- Kitap metni ortalanmış, biraz büyük başlık ve üst boşlukla başlar.
-- “Kısa tık / basılı tut” yazısı yok.
-- Basılı tutunca **yalnız o cümle** çevrilir (paragraf değil).
-- Sözlük görünümü (ayarlar): sadece Türkçe / tür+anlam / ayrıntılı.
-- `width` → genişlik (nokta değil). `depth` → derinlik (derinliği değil).
+Sitede (GitHub Pages) kitap okumak için Google üyeliği gerekir.
 
-## Sözlüğe öner
+Üyesiz yalnız **Alice in Wonderland** önizlemesi (ilk birkaç sayfa). Bitince üye ol ekranı çıkar.
 
-Popup’ta isteğe bağlı anlam kutusu var. Tıklayınca her zaman **Gönderildi** yazar. Günlük 10 sınırı sessiz çalışır.
+`file://` ile D: üzerinde deneme: kapı yok, tüm kitaplar açılır.
 
-Yönetici: mevcut sözlük + önerilen anlam. Olduğu gibi onayla, düzenleyip onayla, reddet.
+## Kitap bitti
 
-## Panel
+Metin bitince kart: **Ana sayfa** / **Başka kitap** / **Baştan oku**.
 
-Tehlikeli alan: **Profilimi sıfırla** ve **Profilimi sil**. Yönetici kendi hesabını silemez.
+## Öneri
 
-## Laboratuvar
+Popup’ta büyük kutu yok. Küçük **Anlamı öner** satırı; açınca kısa düzeltme.
 
-`settings.html` sonsuz “metin” ekler; kaydırma sıfırlanmaz.
+## Sözlük
 
-## Ana sayfa
+`dictionary/extra.js` ile yüzlerce ek madde. `fixes.js` hâlâ width/depth düzeltir.
 
-Günün favorisi büyük, yanında kaldığın yer / bu hafta / top 10. Katalog ayrı rafta.
+## Tema
 
-## Yapay zeka çeviri
+Site krem / yeşil — eğitim, “gel oku”. Gothic siyah gitti.
 
-`js/config.js` içine (yerel dosyan, zip’te yok):
-
-```js
-geminiApiKey: "AI..."
-```
+Okuyucuda **sayfa rengi:** krem, beyaz, adaçayı, gece.
