@@ -85,6 +85,9 @@ if (speedSlider) speedSlider.addEventListener("input", () => {
     saveSettings();
 });
 
+const dictStyleEl = document.getElementById("dictStyle");
+if (dictStyleEl) dictStyleEl.addEventListener("change", saveSettings);
+
 function bumpSpeed(delta) {
     let v = parseFloat(speedSlider ? speedSlider.value : settings.speed) + delta;
     v = Math.round(v * 10) / 10;
@@ -110,7 +113,8 @@ function saveSettings() {
 
         speed: parseFloat(speedSlider ? speedSlider.value : settings.speed),
         font: parseInt(fontSlider ? fontSlider.value : 34, 10),
-        line: parseFloat(lineSlider ? lineSlider.value : 2.2)
+        line: parseFloat(lineSlider ? lineSlider.value : 2.2),
+        dictStyle: (document.getElementById("dictStyle") || {}).value || "simple"
 
     };
 
@@ -132,6 +136,8 @@ function loadSettings() {
     if (speedSlider) speedSlider.value = data.speed;
     if (fontSlider) fontSlider.value = data.font;
     if (lineSlider) lineSlider.value = data.line;
+    const dictStyle = document.getElementById("dictStyle");
+    if (dictStyle && data.dictStyle) dictStyle.value = data.dictStyle;
 
     settings.speed = Number(data.speed);
 

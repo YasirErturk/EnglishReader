@@ -213,6 +213,13 @@ class Reader {
 
         this.container.innerHTML = "";
 
+        if (this.currentMeta && this.currentMeta.title) {
+            const h = document.createElement("h1");
+            h.className = "bookHeading";
+            h.textContent = this.currentMeta.title;
+            this.container.append(h);
+        }
+
         String(text || "").split("\n").forEach(paragraph => {
 
             const p = document.createElement("p");
@@ -264,7 +271,7 @@ class Reader {
                 this.stop();
                 document.querySelectorAll(".word").forEach(w => w.classList.remove("selected"));
                 span.classList.add("selected");
-                const sentence = (span.parentElement && span.parentElement.innerText) || span.textContent;
+                const sentence = sentenceOf(span);
                 this.popup.showSentence(sentence, span.textContent);
             }, 520);
         };

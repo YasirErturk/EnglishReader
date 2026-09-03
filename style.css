@@ -27,6 +27,7 @@
     margin:auto;
     font-size:34px;
     line-height:2.2;
+    padding-top:36px;
     padding-bottom:100vh;
     user-select:none;
     -webkit-user-select:none;
@@ -216,11 +217,11 @@
 
     top:16px;
 
-    width:48px;
+    height:44px;
 
-    height:48px;
+    padding:0 14px 0 6px;
 
-    border-radius:14px;
+    border-radius:999px;
 
     background:#1c1c1c;
 
@@ -232,13 +233,97 @@
 
     align-items:center;
 
-    justify-content:center;
-
-    font-size:22px;
+    gap:8px;
 
     z-index:1000;
 
     box-shadow:0 8px 20px rgba(0,0,0,.35);
+
+    font-size:13px;
+
+    font-weight:600;
+
+    }
+
+    #homeButton img{
+
+    width:32px;
+
+    height:32px;
+
+    border-radius:10px;
+
+    }
+
+    #textContainer .bookHeading{
+
+    text-align:center;
+
+    font-size:1.22em;
+
+    font-weight:700;
+
+    line-height:1.25;
+
+    margin:28px 0 48px;
+
+    letter-spacing:.01em;
+
+    }
+
+    .setting select{
+
+    width:100%;
+
+    background:#111;
+
+    color:#fff;
+
+    border:1px solid #444;
+
+    border-radius:10px;
+
+    padding:10px;
+
+    font-size:16px;
+
+    }
+
+    #suggestBox{
+
+    margin-top:16px;
+
+    }
+
+    #suggestBox label{
+
+    display:block;
+
+    font-size:13px;
+
+    color:#aaa;
+
+    margin-bottom:8px;
+
+    }
+
+    #suggestMeaning{
+
+    width:100%;
+
+    background:#111;
+
+    color:#fff;
+
+    border:1px solid #444;
+
+    border-radius:12px;
+
+    padding:10px;
+
+    font:inherit;
+
+    resize:vertical;
 
     }
 
@@ -617,11 +702,12 @@ body.popup-open #speedNudge{
     bottom:100px;
     z-index:980;
     display:flex;
+    flex-direction:column;
     align-items:center;
-    gap:8px;
+    gap:6px;
     background:#1c1c1c;
-    border-radius:999px;
-    padding:8px;
+    border-radius:22px;
+    padding:8px 6px;
     box-shadow:0 8px 20px rgba(0,0,0,.35);
 }
 
@@ -637,9 +723,9 @@ body.popup-open #speedNudge{
 }
 
 #speedNudge span{
-    min-width:36px;
+    min-width:28px;
     text-align:center;
-    font-size:14px;
+    font-size:13px;
 }
 
 .settings-link{

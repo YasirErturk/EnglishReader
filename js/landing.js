@@ -1,14 +1,36 @@
-function coverHtml(book, extra) {
+function bookHref(book) {
     const file = book.file || ((book.slug || "") + ".txt");
+    return "reader.html?book=" + encodeURIComponent(file);
+}
+
+function coverVisual(book, tall) {
     const img = book.cover_url || book.cover;
     const color = book.cover_color || "#1e3348";
-    const visual = img
-        ? '<div class="book-cover img" style="background-image:url(\'' + img + '\')"></div>'
-        : '<div class="book-cover" style="background:' + color + '">' + (book.title || "") + "</div>";
-    return '<a class="card" href="reader.html?book=' + encodeURIComponent(file) + '" style="text-decoration:none">' +
-        visual +
+    const h = tall ? "height:420px;" : "";
+    if (img) {
+        return '<div class="book-cover img" style="' + h + "background-image:url('" + img + "')\"></div>";
+    }
+    return '<div class="book-cover" style="' + h + "background:" + color + '">' + (book.title || "") + "</div>";
+}
+
+function coverHtml(book, extra) {
+    return '<a class="card" href="' + bookHref(book) + '" style="text-decoration:none">' +
+        coverVisual(book) +
         "<h3>" + (book.title || "") + "</h3>" +
         '<div class="book-meta">' + [book.author, book.year, extra].filter(Boolean).join(" · ") + "</div></a>";
+}
+
+function compactHtml(book, extra) {
+    const img = book.cover_url || book.cover;
+    const color = book.cover_color || "#1e3348";
+    const thumb = img
+        ? '<span class="mini-cover" style="background-image:url(\'' + img + "')\"></span>"
+        : '<span class="mini-cover" style="background:' + color + '"></span>';
+    return '<a class="compact-row" href="' + bookHref(book) + '">' +
+        thumb +
+        "<span><b>" + (book.title || "") + "</b><small>" +
+        [book.author, extra].filter(Boolean).join(" · ") +
+        "</small></span></a>";
 }
 
 function renderInto(id, list, extras) {
@@ -18,6 +40,50 @@ function renderInto(id, list, extras) {
     (list || []).forEach(function (book, i) {
         root.insertAdjacentHTML("beforeend", coverHtml(book, extras && extras[i]));
     });
+}
+
+function renderCompact(id, list, extras) {
+    const root = document.getElementById(id);
+    if (!root) return;
+    root.innerHTML = "";
+    (list || []).forEach(function (book, i) {
+        root.insertAdjacentHTML("beforeend", compactHtml(book, extras && extras[i]));
+    });
+}
+
+function renderRanks(id, list) {
+    const root = document.getElementById(id);
+    if (!root) return;
+    root.innerHTML = "";
+    (list || []).forEach(function (book, i) {
+        const img = book.cover_url || book.cover;
+        const color = book.cover_color || "#1e3348";
+        const thumb = img
+            ? '<span class="mini-cover" style="background-image:url(\'' + img + "')\"></span>"
+            : '<span class="mini-cover" style="background:' + color + '"></span>';
+        root.insertAdjacentHTML("beforeend",
+            "<li><a href=\"" + bookHref(book) + "\">" +
+            '<span class="n">' + (i + 1) + "</span>" +
+            thumb +
+            "<span><b>" + (book.title || "") + "</b><small>" + (book.author || "") + "</small></span>" +
+            "</a></li>");
+    });
+}
+
+function renderSpotlight(book, badge) {
+    const root = document.getElementById("spotlight");
+    if (!root || !book) {
+        if (root) root.innerHTML = "";
+        return;
+    }
+    root.innerHTML =
+        '<a class="card spotlight-card" href="' + bookHref(book) + '">' +
+        '<span class="badge">' + (badge || "Günün favorisi") + "</span>" +
+        coverVisual(book, true) +
+        '<div class="spotlight-copy">' +
+        "<h3>" + (book.title || "") + "</h3>" +
+        '<div class="book-meta">' + [book.author, book.year, book.genre].filter(Boolean).join(" · ") + "</div>" +
+        "</div></a>";
 }
 
 function localBooks() {
@@ -82,8 +148,8 @@ async function boot() {
         : localBooks();
 
     if (mine.length) {
-        document.getElementById("continueSection").style.display = "block";
-        renderInto("myBooks", mine.map(function (r) {
+        document.getElementById("continueBlock").style.display = "block";
+        renderCompact("myBooks", mine.slice(0, 3).map(function (r) {
             const b = r.books || {};
             return {
                 title: b.title,
@@ -94,6 +160,8 @@ async function boot() {
                 cover_url: b.cover_url,
                 cover_color: b.cover_color
             };
+        }), mine.slice(0, 3).map(function (r) {
+            return Math.round(r.percent || 0) + "%";
         }));
     }
 
@@ -101,9 +169,9 @@ async function boot() {
     const byWeek = catalog.slice().sort(function (a, b) { return (b.seconds_7d || 0) - (a.seconds_7d || 0); });
     const byAll = catalog.slice().sort(function (a, b) { return (b.seconds_all || 0) - (a.seconds_all || 0); });
 
-    renderInto("dayFav", byDay.slice(0, 1));
-    renderInto("weekFav", byWeek.slice(0, 1));
-    renderInto("top10", byAll.slice(0, 10));
+    renderSpotlight(byDay[0] || catalog[0], "Günün favorisi");
+    renderCompact("weekFav", byWeek.slice(0, 1));
+    renderRanks("top10", byAll.slice(0, 10));
     renderInto("publicBooks", catalog);
 
     if (session) {

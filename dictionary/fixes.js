@@ -1,0 +1,21 @@
+const DICT_FIXES = {
+    depth: { tr: "derinlik", pos: "i.", extra: "yoğunluk, şiddet", redhouse: "depth  i.  1) derinlik  2) yoğunluk, şiddet" },
+    deep: { tr: "derin", pos: "s.", extra: "derinlemesine", redhouse: "deep  s.  1) derin  2) yoğun, koyu" },
+    width: { tr: "genişlik", pos: "i.", extra: "en", redhouse: "width  i.  1) genişlik  2) en" },
+    wide: { tr: "geniş", pos: "s.", extra: "enine", redhouse: "wide  s.  1) geniş  2) enine" },
+    height: { tr: "yükseklik", pos: "i.", redhouse: "height  i.  1) yükseklik  2) boy" },
+    length: { tr: "uzunluk", pos: "i.", redhouse: "length  i.  uzunluk" },
+    long: { tr: "uzun", pos: "s.", redhouse: "long  s.  uzun" },
+    short: { tr: "kısa", pos: "s.", redhouse: "short  s.  kısa" },
+    coke: { tr: "kola", pos: "i.", redhouse: "coke  i.  kola" },
+    milk: { tr: "süt", pos: "i.", redhouse: "milk  i.  süt" },
+    water: { tr: "su", pos: "i.", extra: "sular; sulamak", redhouse: "water  i.  1) su  f.  2) sulamak" },
+    drink: { tr: "içmek", pos: "f.", extra: "içecek", redhouse: "drink  f.  1) içmek  i.  2) içecek" },
+    want: { tr: "istemek", pos: "f.", redhouse: "want  f.  istemek" },
+    book: { tr: "kitap", pos: "i.", extra: "ayırtmak", redhouse: "book  i.  1) kitap  f.  2) ayırtmak" },
+    light: { tr: "ışık", pos: "i.", extra: "hafif; aydınlık", redhouse: "light  i.  1) ışık  s.  2) hafif  3) aydınlık" },
+    left: { tr: "sol", pos: "s.", extra: "ayrıldı, bıraktı", redhouse: "left  s.  1) sol  f.  2) leave'in geçmişi" },
+    right: { tr: "sağ", pos: "s.", extra: "doğru; hak", redhouse: "right  s.  1) sağ  2) doğru  i.  3) hak" },
+    well: { tr: "iyi", pos: "zf.", extra: "kuyu", redhouse: "well  zf.  1) iyi  i.  2) kuyu" },
+    bank: { tr: "nehir kenarı", pos: "i.", extra: "banka", redhouse: "bank  i.  1) nehir kenarı  2) banka" }
+};

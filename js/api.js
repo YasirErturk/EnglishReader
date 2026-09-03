@@ -265,35 +265,41 @@ API.logAuth = async function (event) {
     });
 };
 
-API.suggestWord = async function (word, meaning) {
-    if (!API.client) return { ok: false, message: "Giriş gerekli" };
+API.suggestWord = async function (word, meaning, context) {
+    if (!API.client) return { ok: true };
     const session = API.session || await API.getSession();
-    if (!session) return { ok: false, message: "Giriş gerekli" };
+    if (!session) return { ok: true };
 
     const clean = (window.cleanWord ? cleanWord(word) : String(word || "").replace(/[^a-zA-Z']/g, "")).trim();
-    if (!clean) return { ok: false, message: "Kelime yok" };
+    if (!clean) return { ok: true };
 
     const start = new Date();
     start.setHours(0, 0, 0, 0);
 
-    const { count, error: countError } = await API.client
+    const { count } = await API.client
         .from("word_suggestions")
         .select("id", { count: "exact", head: true })
         .eq("user_id", session.user.id)
         .gte("created_at", start.toISOString());
 
-    if (countError) return { ok: false, message: countError.message };
-    if ((count || 0) >= 10) return { ok: false, message: "Günlük 10 öneri doldu" };
+    if ((count || 0) >= 10) return { ok: true };
 
-    const { error } = await API.client.from("word_suggestions").insert({
+    await API.client.from("word_suggestions").insert({
         user_id: session.user.id,
         word: clean,
         meaning_tr: meaning || "",
+        context: context || "",
         status: "pending"
     });
+    return { ok: true };
+};
 
-    if (error) return { ok: false, message: error.message };
-    return { ok: true, message: "Öneri gönderildi (" + (10 - (count || 0) - 1) + " kaldı)" };
+API.deleteAccount = async function () {
+    if (!API.client) return { error: "no client" };
+    const { error } = await API.client.rpc("delete_own_account");
+    if (error) return { error: error.message };
+    await API.client.auth.signOut();
+    return { error: null };
 };
 
 API.listMembers = async function () {

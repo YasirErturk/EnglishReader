@@ -122,33 +122,69 @@ async function renderLogs() {
     });
 }
 
+function currentDictMeaning(word) {
+    const key = String(word || "").toLowerCase().replace(/[^a-z']/g, "");
+    if (window.DICT_FIXES && DICT_FIXES[key]) {
+        const e = DICT_FIXES[key];
+        return typeof e === "string" ? e : (e.tr || "");
+    }
+    if (typeof DICTIONARY !== "undefined" && DICTIONARY[key]) return DICTIONARY[key];
+    if (window.REMOTE_DICT && REMOTE_DICT[key]) return REMOTE_DICT[key];
+    return "—";
+}
+
+function escapeHtml(s) {
+    return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
 async function renderSuggestions() {
     const rows = await API.listSuggestions();
-    const tbody = document.querySelector("#suggestTable tbody");
-    tbody.innerHTML = "";
+    const root = document.getElementById("suggestList");
+    root.innerHTML = "";
+    if (!rows.length) {
+        root.innerHTML = "<p class='book-meta'>Bekleyen öneri yok.</p>";
+        return;
+    }
     rows.forEach(function (s) {
         const who = s.profiles ? (s.profiles.email || s.profiles.display_name) : "";
-        const tr = document.createElement("tr");
-        let actions = s.status;
-        if (s.status === "pending") {
-            actions = '<button class="btn btn-blue btn-sm" data-act="approved" data-id="' + s.id + '">Onayla</button> ' +
-                '<button class="btn btn-danger btn-sm" data-act="rejected" data-id="' + s.id + '">Reddet</button>';
-        }
-        tr.innerHTML =
-            "<td>" + s.word + "</td>" +
-            "<td>" + (s.meaning_tr || "") + "</td>" +
-            "<td>" + (who || "") + "</td>" +
-            "<td>" + s.status + "</td>" +
-            "<td>" + actions + "</td>";
-        if (s.status === "pending") {
-            tr.querySelectorAll("button").forEach(function (btn) {
+        const current = currentDictMeaning(s.word);
+        const card = document.createElement("div");
+        card.className = "card suggest-card";
+        const pending = s.status === "pending";
+        card.innerHTML =
+            "<h3>" + escapeHtml(s.word) + "</h3>" +
+            "<p class='book-meta'>" + escapeHtml(who) + " · " + escapeHtml(s.status) + "</p>" +
+            "<p><b>Sözlükte şimdi:</b> " + escapeHtml(current) + "</p>" +
+            (s.context ? "<p class='book-meta'>Bağlam: " + escapeHtml(s.context) + "</p>" : "") +
+            "<label>Önerilen anlam</label>" +
+            "<textarea rows='2'" + (pending ? "" : " disabled") + ">" + escapeHtml(s.meaning_tr) + "</textarea>" +
+            (pending
+                ? '<div class="suggest-actions">' +
+                    '<button class="btn btn-blue btn-sm" data-act="as-is" type="button">Olduğu gibi onayla</button>' +
+                    '<button class="btn btn-blue btn-sm" data-act="edit" type="button">Düzenleyip onayla</button>' +
+                    '<button class="btn btn-danger btn-sm" data-act="rejected" type="button">Reddet</button>' +
+                  "</div>"
+                : "");
+        if (pending) {
+            const ta = card.querySelector("textarea");
+            card.querySelectorAll("button").forEach(function (btn) {
                 btn.addEventListener("click", async function () {
-                    await API.reviewSuggestion(s.id, btn.getAttribute("data-act"), s.word, s.meaning_tr);
+                    const act = btn.getAttribute("data-act");
+                    if (act === "rejected") {
+                        await API.reviewSuggestion(s.id, "rejected", s.word, s.meaning_tr);
+                    } else if (act === "as-is") {
+                        await API.reviewSuggestion(s.id, "approved", s.word, s.meaning_tr);
+                    } else {
+                        await API.reviewSuggestion(s.id, "approved", s.word, ta.value.trim() || s.meaning_tr);
+                    }
                     await renderSuggestions();
                 });
             });
         }
-        tbody.appendChild(tr);
+        root.appendChild(card);
     });
 }
 
@@ -174,6 +210,14 @@ async function boot() {
         alert("Bu sayfa yalnız yönetici için.");
         location.href = "dashboard.html";
         return;
+    }
+
+    if (API.loadRemoteDictionary) {
+        try {
+            window.REMOTE_DICT = await API.loadRemoteDictionary() || {};
+        } catch (err) {
+            window.REMOTE_DICT = {};
+        }
     }
 
     await Promise.all([renderBooks(), renderMembers(), renderLogs(), renderSuggestions()]);

@@ -40,34 +40,38 @@
         </div>
     </section>
 
-    <section class="section" id="continueSection" style="display:none">
-        <h2>Okumaya devam</h2>
-        <div class="grid-books" id="myBooks"></div>
-    </section>
-
-    <section class="section">
-        <h2>Günün favorisi</h2>
-        <div class="grid-books" id="dayFav"></div>
-    </section>
-
-    <section class="section">
-        <h2>Haftanın en çok okunanı</h2>
-        <div class="grid-books" id="weekFav"></div>
-    </section>
-
-    <section class="section">
-        <h2>Top 10</h2>
-        <div class="grid-books" id="top10"></div>
+    <section class="discover" id="discover">
+        <div class="discover-grid">
+            <div class="spotlight" id="spotlight"></div>
+            <aside class="ranks">
+                <div class="rank-block" id="continueBlock" style="display:none">
+                    <h2>Kaldığın yer</h2>
+                    <div id="myBooks" class="compact-books"></div>
+                </div>
+                <div class="rank-block">
+                    <h2>Bu hafta</h2>
+                    <div id="weekFav" class="compact-books"></div>
+                </div>
+                <div class="rank-block">
+                    <h2>Top 10</h2>
+                    <ol id="top10" class="rank-list"></ol>
+                </div>
+            </aside>
+        </div>
     </section>
 
     <section class="section" id="recSection" style="display:none">
-        <h2>Sana tavsiye</h2>
+        <div class="section-head">
+            <h2>Sana tavsiye</h2>
+        </div>
         <div class="grid-books" id="recommended"></div>
     </section>
 
     <section class="section">
-        <h2>Katalog</h2>
-        <p class="sub" style="margin-top:-12px">Kamu malı eserler. Telifliler yalnız yöneticide.</p>
+        <div class="section-head">
+            <h2>Katalog</h2>
+            <p class="sub">Kamu malı eserler. Telifliler yalnız yöneticide.</p>
+        </div>
         <div class="grid-books" id="publicBooks"></div>
     </section>
 </div>

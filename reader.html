@@ -15,7 +15,10 @@
 
 <body>
 
-<a id="homeButton" href="index.html" title="Ana sayfa">⌂</a>
+<a id="homeButton" href="index.html" title="Ana sayfa">
+    <img src="assets/logo.png" alt="">
+    <span>Ana sayfa</span>
+</a>
 
 <main id="reader">
 
@@ -46,7 +49,10 @@
 
     <div id="popupSource"></div>
 
-    <div id="popupHint"></div>
+    <div id="suggestBox">
+        <label for="suggestMeaning">Bu metindeki anlam (isteğe bağlı)</label>
+        <textarea id="suggestMeaning" rows="2" placeholder="Farklı bir anlamda kullanıldıysa yaz"></textarea>
+    </div>
 
     <button id="saveWordButton" type="button">Kelime defterime ekle</button>
 
@@ -89,6 +95,18 @@
 
     </div>
 
+    <div class="setting">
+
+        <label>Sözlük görünümü</label>
+
+        <select id="dictStyle">
+            <option value="simple">Sadece Türkçe</option>
+            <option value="detail">Tür + anlam (i. f. s.)</option>
+            <option value="redhouse">Ayrıntılı</option>
+        </select>
+
+    </div>
+
     <a class="settings-link" href="settings.html">Ayar laboratuvarı →</a>
 
 </div>
@@ -102,9 +120,9 @@
 </div>
 
 <div id="speedNudge">
-    <button id="speedDown" type="button">−</button>
-    <span id="speedValue">0.6</span>
     <button id="speedUp" type="button">+</button>
+    <span id="speedValue">0.6</span>
+    <button id="speedDown" type="button">−</button>
 </div>
 
 
@@ -115,6 +133,7 @@
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="dictionary/tr.js"></script>
+<script src="dictionary/fixes.js"></script>
 <script src="books/library.js"></script>
 <script src="js/dictionary.js"></script>
 <script src="js/translate.js"></script>

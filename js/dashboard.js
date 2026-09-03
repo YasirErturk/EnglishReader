@@ -122,6 +122,25 @@ async function boot() {
         }
         location.reload();
     });
+
+    const delBtn = document.getElementById("deleteAccount");
+    if (profile && profile.is_admin) {
+        delBtn.disabled = true;
+        delBtn.textContent = "Yönetici hesabı silinemez";
+    } else {
+        delBtn.addEventListener("click", async function () {
+            const ok = confirm("Hesabın ve tüm verin silinecek. Emin misin?");
+            if (!ok) return;
+            const again = confirm("Son uyarı: profilimi sil, geri alınamaz.");
+            if (!again) return;
+            const res = await API.deleteAccount();
+            if (res.error) {
+                alert(res.error);
+                return;
+            }
+            location.href = "index.html";
+        });
+    }
 }
 
 boot();

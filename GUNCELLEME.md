@@ -1,38 +1,46 @@
 # Bu tur
 
-1. **`js/config.js` üzerine yazma.**
-2. Zip içeriğini klasöre kopyala.
-3. Supabase SQL Editor → `supabase/06_update.sql` → Run.
-   (Önceki turda `05_features.sql` çalışmadıysa onu da çalıştır.)
+1. **`js/config.js` üzerine yazma.** Zip’te yok.
+2. Zip içeriğini `D:/Programlar/EnglishReader` üzerine kopyala (replace all).
+3. Supabase SQL Editor, sırayla (daha önce çalıştıysa atla):
+   - `supabase/05_features.sql` (hiç çalışmadıysa)
+   - `supabase/06_update.sql`
+   - `supabase/07_update.sql`  ← bu tur zorunlu (hesap silme + öneri bağlamı + depth/width)
 
 Silinen dosya yok.
 
-## Kitap düzenleme
+## Okuyucu
 
-Yönetici → Kitaplar → satırdaki **Düzenle**. Kapak URL, yıl, metin, telif kutusu. Kaydet.
-
-## Okuma
-
-Kitap açılınca kapak + başlık + yazar/yıl durur. Ekrana tıklayınca akar. Devam et de aynı.
-
-Sağ altta **− / +** hız. Tam ayar için `settings.html` (sonsuz “metin metin…”).
+- Ana sayfa butonu logo + “Ana sayfa”.
+- Hız sağda dikey: **+** üstte (daha hızlı), değer, **−**.
+- Kitap metni ortalanmış, biraz büyük başlık ve üst boşlukla başlar.
+- “Kısa tık / basılı tut” yazısı yok.
+- Basılı tutunca **yalnız o cümle** çevrilir (paragraf değil).
+- Sözlük görünümü (ayarlar): sadece Türkçe / tür+anlam / ayrıntılı.
+- `width` → genişlik (nokta değil). `depth` → derinlik (derinliği değil).
 
 ## Sözlüğe öner
 
-Popup açıkken sağ alttaki yeşil/mavi butonlar gizleniyor; **Sözlüğe öner** tıklanabilir olmalı. Giriş şart. Günlük 10.
+Popup’ta isteğe bağlı anlam kutusu var. Tıklayınca her zaman **Gönderildi** yazar. Günlük 10 sınırı sessiz çalışır.
+
+Yönetici: mevcut sözlük + önerilen anlam. Olduğu gibi onayla, düzenleyip onayla, reddet.
+
+## Panel
+
+Tehlikeli alan: **Profilimi sıfırla** ve **Profilimi sil**. Yönetici kendi hesabını silemez.
+
+## Laboratuvar
+
+`settings.html` sonsuz “metin” ekler; kaydırma sıfırlanmaz.
+
+## Ana sayfa
+
+Günün favorisi büyük, yanında kaldığın yer / bu hafta / top 10. Katalog ayrı rafta.
 
 ## Yapay zeka çeviri
 
-Sözlükte yoksa veya cümleye basılı tutunca çeviri servisi çalışır.
-
-Popup altında kaynak yazar:
-- `Kaynak: Gemini (yapay zeka)` → `js/config.js` içine `geminiApiKey` eklediysen
-- `Kaynak: makine çevirisi` → ücretsiz yedek servis (şu an varsayılan)
-
-Gemini için [Google AI Studio](https://aistudio.google.com/apikey) anahtarı:
+`js/config.js` içine (yerel dosyan, zip’te yok):
 
 ```js
 geminiApiKey: "AI..."
 ```
-
-`js/config.js` içine, diğer anahtarların yanına.

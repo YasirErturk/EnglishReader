@@ -12,9 +12,12 @@ class Popup {
         this.source = document.getElementById("popupSource");
         this.saveButton = document.getElementById("saveWordButton");
         this.suggestButton = document.getElementById("suggestWordButton");
+        this.suggestBox = document.getElementById("suggestBox");
+        this.suggestInput = document.getElementById("suggestMeaning");
 
         this.currentText = "";
         this.currentMeaning = "";
+        this.currentContext = "";
         this.mode = "word";
 
         this.overlay.addEventListener("click", () => {
@@ -41,16 +44,11 @@ class Popup {
                 e.preventDefault();
                 e.stopPropagation();
                 const btn = this.suggestButton;
-                btn.textContent = "Gönderiliyor…";
-                if (!(window.API && API.suggestWord)) {
-                    btn.textContent = "Giriş gerekli";
-                    return;
-                }
-                API.suggestWord(this.currentText, this.currentMeaning).then(function (result) {
-                    btn.textContent = (result && result.message) ? result.message : "Gönderilemedi";
-                }).catch(function () {
-                    btn.textContent = "Gönderilemedi";
-                });
+                const note = this.suggestInput ? this.suggestInput.value.trim() : "";
+                const meaning = note || this.currentMeaning;
+                btn.textContent = "Gönderildi";
+                if (!(window.API && API.suggestWord)) return;
+                API.suggestWord(this.currentText, meaning, this.currentContext);
             });
         }
 
@@ -71,12 +69,13 @@ class Popup {
 
         const display = (window.cleanWord ? cleanWord(text) : String(text || "").replace(/[^a-zA-Z']/g, "")) || String(text || "").trim();
         this.currentText = display;
+        this.currentContext = "";
 
         if (this.kind) this.kind.textContent = "Kelime";
         this.word.textContent = display;
         this.meaning.textContent = "Bakılıyor…";
         if (this.source) this.source.textContent = "";
-        if (this.hint) this.hint.textContent = "Basılı tutarak cümlenin çevirisini gör.";
+        if (this.hint) this.hint.textContent = "";
 
         if (this.saveButton) {
             this.saveButton.style.display = "block";
@@ -86,6 +85,8 @@ class Popup {
             this.suggestButton.style.display = "block";
             this.suggestButton.textContent = "Sözlüğe öner";
         }
+        if (this.suggestBox) this.suggestBox.style.display = "block";
+        if (this.suggestInput) this.suggestInput.value = "";
 
         this.popup.classList.add("show");
         this.overlay.classList.add("show");
@@ -99,7 +100,7 @@ class Popup {
             return;
         }
 
-        const translated = await translateSentence(display);
+        const translated = await translateSentence(display, true);
         this.currentMeaning = translated;
         this.meaning.textContent = translated;
         if (this.source) this.source.textContent = translationSourceLabel();
@@ -113,24 +114,27 @@ class Popup {
 
         this.currentText = window.cleanWord ? cleanWord(heldWord) : String(heldWord || "").trim();
         sentence = String(sentence || "").replace(/\s+/g, " ").trim();
+        this.currentContext = sentence;
 
         if (this.kind) this.kind.textContent = "Cümle çevirisi";
         this.word.textContent = sentence;
         this.meaning.textContent = "Çevriliyor…";
         if (this.source) this.source.textContent = "";
-        if (this.hint) this.hint.textContent = "Kısa tık: kelime. Basılı tut: cümle.";
+        if (this.hint) this.hint.textContent = "";
 
         if (this.saveButton) this.saveButton.style.display = "none";
         if (this.suggestButton) {
             this.suggestButton.style.display = "block";
             this.suggestButton.textContent = "Sözlüğe öner";
         }
+        if (this.suggestBox) this.suggestBox.style.display = "block";
+        if (this.suggestInput) this.suggestInput.value = "";
 
         this.popup.classList.add("show");
         this.overlay.classList.add("show");
         this.setChrome(true);
 
-        const translated = await translateSentence(sentence);
+        const translated = await translateSentence(sentence, false);
         this.meaning.textContent = translated;
         this.currentMeaning = translated;
         if (this.source) this.source.textContent = translationSourceLabel();
