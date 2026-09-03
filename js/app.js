@@ -13,15 +13,25 @@ const textContainer = document.getElementById("textContainer");
 
 init();
 
-function init(){
+async function init(){
 
     loadDictionary();
 
-    loadLibrary();
+    if (window.API && API.configured) {
+        await API.getSession();
+        await API.getProfile();
+    }
+
+    const home = document.getElementById("homeButton");
+    if (home && API.session) {
+        home.href = "dashboard.html";
+    }
+
+    await loadLibrary();
 
     loadSettings();
 
-    reader.load();
+    await reader.load();
 
 }
 

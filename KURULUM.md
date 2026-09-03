@@ -68,6 +68,10 @@ Sıra zorunlu:
 2. `supabase/02_seed_dictionary.sql`
 3. `supabase/03_seed_books.sql`
 
+Site zaten açıksa yalnız şunu çalıştır:
+
+4. `supabase/05_features.sql`  (üyeler, giriş logu, kelime önerisi)
+
 Hata olursa ekran görüntüsünü at.
 
 `04_make_admin.sql` henüz değil. Önce Google ile bir kez giriş yapacaksın.

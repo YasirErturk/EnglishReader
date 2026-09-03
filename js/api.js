@@ -41,6 +41,7 @@ API.signInGoogle = async function () {
 
 API.signOut = async function () {
     if (!API.client) return;
+    try { await API.logAuth("logout"); } catch (err) {}
     await API.client.auth.signOut();
     location.href = "index.html";
 };

@@ -11,10 +11,11 @@ class Reader {
         this.animation = null;
         this.saveTimer = null;
         this.isRunning = false;
-        this.skipWordClick = false;
         this.currentBook = "alice.txt";
         this.sessionStartedAt = null;
         this.draggingProgress = false;
+        this.longPressFired = false;
+        this.pressTimer = null;
 
         this.reader.addEventListener("click", (e) => {
 
@@ -29,26 +30,8 @@ class Reader {
 
         });
 
-        this.reader.addEventListener("mousemove", (e) => {
-
-            if (e.buttons === 1 && window.getSelection && window.getSelection().toString()) {
-                this.stop();
-            }
-
-        });
-
-        document.addEventListener("mouseup", () => {
-
-            const sel = window.getSelection ? window.getSelection().toString().trim() : "";
-            const parts = sel.split(/\s+/).filter(Boolean);
-
-            if (parts.length >= 2) {
-                this.skipWordClick = true;
-                this.stop();
-                this.popup.show(sel);
-            }
-
-        });
+        this.reader.addEventListener("selectstart", (e) => e.preventDefault());
+        this.reader.addEventListener("dragstart", (e) => e.preventDefault());
 
         this.bindProgressBar();
 
@@ -83,7 +66,6 @@ class Reader {
             e.stopPropagation();
 
             this.draggingProgress = true;
-            this.wasRunningBeforeDrag = this.isRunning;
             this.stop();
             bar.classList.add("dragging");
 
@@ -172,6 +154,8 @@ class Reader {
             this.flushSession();
         });
 
+        requestAnimationFrame(() => this.updateProgress());
+
     }
 
     create(text) {
@@ -191,26 +175,7 @@ class Reader {
                 span.className = "word";
                 span.textContent = word;
 
-                span.addEventListener("click", (e) => {
-
-                    e.stopPropagation();
-
-                    if (this.skipWordClick) {
-                        this.skipWordClick = false;
-                        return;
-                    }
-
-                    this.stop();
-
-                    document
-                        .querySelectorAll(".word")
-                        .forEach(w => w.classList.remove("selected"));
-
-                    span.classList.add("selected");
-
-                    this.popup.show(word);
-
-                });
+                this.bindWord(span);
 
                 p.append(span);
                 p.append(" ");
@@ -218,6 +183,57 @@ class Reader {
             });
 
             this.container.append(p);
+
+        });
+
+    }
+
+    bindWord(span) {
+
+        const clearPress = () => {
+            if (this.pressTimer) {
+                clearTimeout(this.pressTimer);
+                this.pressTimer = null;
+            }
+        };
+
+        const startPress = (e) => {
+            if (e.button && e.button !== 0) return;
+            this.longPressFired = false;
+            clearPress();
+            this.pressTimer = setTimeout(() => {
+                this.longPressFired = true;
+                this.stop();
+                document.querySelectorAll(".word").forEach(w => w.classList.remove("selected"));
+                span.classList.add("selected");
+                const sentence = (span.parentElement && span.parentElement.innerText) || span.textContent;
+                this.popup.showSentence(sentence, span.textContent);
+            }, 520);
+        };
+
+        span.addEventListener("pointerdown", startPress);
+        span.addEventListener("pointerup", clearPress);
+        span.addEventListener("pointerleave", clearPress);
+        span.addEventListener("pointercancel", clearPress);
+
+        span.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+        });
+
+        span.addEventListener("click", (e) => {
+
+            e.stopPropagation();
+
+            if (this.longPressFired) {
+                this.longPressFired = false;
+                return;
+            }
+
+            this.stop();
+
+            document.querySelectorAll(".word").forEach(w => w.classList.remove("selected"));
+            span.classList.add("selected");
+            this.popup.showWord(span.textContent);
 
         });
 
@@ -322,10 +338,13 @@ class Reader {
             this.reader.scrollHeight -
             this.reader.clientHeight;
 
-        if (max <= 0) return;
+        if (max <= 0) {
+            progress.style.height = "0%";
+            if (thumb) thumb.style.top = "0%";
+            return;
+        }
 
-        const percent =
-            (this.reader.scrollTop / max) * 100;
+        const percent = Math.max(0, Math.min(100, (this.reader.scrollTop / max) * 100));
 
         progress.style.height = percent + "%";
 

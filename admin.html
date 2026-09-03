@@ -23,36 +23,93 @@
     </aside>
     <main class="main">
         <h1 class="hello">Yönetici</h1>
-        <p class="sub">Telifli kitaplar burada kalır. Üyeler görmez, sen okursun.</p>
+        <p class="sub">Üyeler, giriş kayıtları, kelime önerileri ve katalog.</p>
 
-        <div class="card form" style="margin-bottom:28px">
-            <h2 style="margin-bottom:14px">Kitap ekle</h2>
-            <label>Başlık</label>
-            <input id="title" type="text">
-            <label>Yazar</label>
-            <input id="author" type="text">
-            <label>Tür</label>
-            <input id="genre" type="text" placeholder="Roman, Polisiye...">
-            <label>Slug (alice, sherlock...)</label>
-            <input id="slug" type="text">
-            <label>Kapak rengi</label>
-            <input id="cover" type="text" value="#1e3348">
-            <label>
-                <input id="copyrighted" type="checkbox"> Telifli — yalnız yönetici görsün
-            </label>
-            <label>Metin</label>
-            <textarea id="content" rows="10"></textarea>
-            <button class="btn btn-blue" id="saveBook" type="button">Kaydet</button>
-            <p id="saveMsg" class="book-meta"></p>
+        <div class="tabs" id="tabs">
+            <button class="tab active" data-tab="members" type="button">Üyeler</button>
+            <button class="tab" data-tab="logs" type="button">Giriş / çıkış</button>
+            <button class="tab" data-tab="suggestions" type="button">Kelime önerileri</button>
+            <button class="tab" data-tab="books" type="button">Kitaplar</button>
         </div>
 
-        <div class="card">
-            <h2 style="margin-bottom:14px">Katalog</h2>
-            <table class="table" id="bookTable">
-                <thead><tr><th>Kitap</th><th>Tür</th><th>Telif</th><th></th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
+        <section class="panel active" id="panel-members">
+            <div class="card">
+                <table class="table" id="memberTable">
+                    <thead>
+                        <tr>
+                            <th>Üye</th>
+                            <th>Rol</th>
+                            <th>Kitap</th>
+                            <th>Süre</th>
+                            <th>Kayıt</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-logs">
+            <div class="card">
+                <table class="table" id="logTable">
+                    <thead>
+                        <tr>
+                            <th>Zaman</th>
+                            <th>Olay</th>
+                            <th>E-posta</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-suggestions">
+            <div class="card">
+                <table class="table" id="suggestTable">
+                    <thead>
+                        <tr>
+                            <th>Kelime</th>
+                            <th>Önerilen anlam</th>
+                            <th>Üye</th>
+                            <th>Durum</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-books">
+            <div class="card form" style="margin-bottom:28px">
+                <h2 style="margin-bottom:14px">Kitap ekle</h2>
+                <label>Başlık</label>
+                <input id="title" type="text">
+                <label>Yazar</label>
+                <input id="author" type="text">
+                <label>Tür</label>
+                <input id="genre" type="text" placeholder="Roman, Polisiye...">
+                <label>Slug (alice, sherlock...)</label>
+                <input id="slug" type="text">
+                <label>Kapak rengi</label>
+                <input id="cover" type="text" value="#1e3348">
+                <label>
+                    <input id="copyrighted" type="checkbox"> Telifli — yalnız yönetici görsün
+                </label>
+                <label>Metin</label>
+                <textarea id="content" rows="10"></textarea>
+                <button class="btn btn-blue" id="saveBook" type="button">Kaydet</button>
+                <p id="saveMsg" class="book-meta"></p>
+            </div>
+            <div class="card">
+                <h2 style="margin-bottom:14px">Katalog</h2>
+                <table class="table" id="bookTable">
+                    <thead><tr><th>Kitap</th><th>Tür</th><th>Telif</th><th></th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
     </main>
 </div>
 

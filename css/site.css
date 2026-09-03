@@ -223,6 +223,23 @@ a{color:inherit}
 
 .lock{font-size:12px;color:var(--gold)}
 
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px}
+.tab{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--text);
+    border-radius:999px;
+    padding:8px 14px;
+    cursor:pointer;
+    font:inherit;
+}
+.tab.active{background:var(--blue-2);border-color:var(--blue-2)}
+.panel{display:none}
+.panel.active{display:block}
+.ok{color:#8ee0a8}
+.no{color:#ffb4b4}
+.btn-sm{padding:8px 12px;font-size:13px}
+
 @media (max-width:900px){
     .hero,.layout,.grid-3,.grid-4,.grid-books{grid-template-columns:1fr}
     .side{display:none}
