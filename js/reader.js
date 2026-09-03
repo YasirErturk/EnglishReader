@@ -32,6 +32,7 @@ class Reader {
             if (this.gateOpen) return;
             if (this.finishedShown) return;
             if (e.target.closest && e.target.closest("#speedNudge")) return;
+            if (e.target.closest && e.target.closest("#listenBar")) return;
 
             if (this.awaitingStart) {
                 this.hideTitle();
@@ -395,8 +396,9 @@ class Reader {
                 this.stop();
                 document.querySelectorAll(".word").forEach(w => w.classList.remove("selected"));
                 span.classList.add("selected");
-                const sentence = sentenceOf(span);
-                this.popup.showSentence(sentence, span.textContent);
+                const unit = Speech.spansForSentence(span);
+                Speech.speakSentence(unit.text, unit.spans);
+                this.popup.showSentence(unit.text, span.textContent);
             }, 520);
         };
 
@@ -428,6 +430,7 @@ class Reader {
 
             document.querySelectorAll(".word").forEach(w => w.classList.remove("selected"));
             span.classList.add("selected");
+            Speech.speakWord(span.textContent);
             this.popup.showWord(span.textContent);
 
         });
@@ -438,6 +441,7 @@ class Reader {
 
         if (this.awaitingStart || this.gateOpen || this.finishedShown) return;
         if (this.isRunning) return;
+        if (window.Speech && Speech.mode === "book") Speech.stop();
 
         this.isRunning = true;
         this.sessionStartedAt = Date.now();

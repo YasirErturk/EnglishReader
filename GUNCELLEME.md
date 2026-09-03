@@ -31,3 +31,13 @@ Popup’ta büyük kutu yok. Küçük **Anlamı öner** satırı; açınca kısa
 Site krem / yeşil — eğitim, “gel oku”. Gothic siyah gitti.
 
 Okuyucuda **sayfa rengi:** krem, beyaz, adaçayı, gece.
+
+## Sesli okuma
+
+Altyapı: `js/speech.js` (tarayıcı TTS, İngilizce ses).
+
+- Kelimeye tıkla → sesli okur
+- Basılı tut → cümleyi sesli okur
+- Sol alt **Durdur**
+- **Kitabı oku** baştan sona; okunan cümle işaretlenir
+- Ayarlarda ses hızı

@@ -36,6 +36,7 @@ async function init(){
 }
 
 document.addEventListener("popupClosed", () => {
+    if (window.Speech && Speech.isBusy()) return;
     if (!reader.awaitingStart && !reader.gateOpen && !reader.finishedShown) reader.start();
 });
 
@@ -65,6 +66,8 @@ document.addEventListener("click",(e)=>{
 
     if (e.target.closest && e.target.closest("#speedNudge")) return;
 
+    if (e.target.closest && e.target.closest("#listenBar")) return;
+
     closePanels();
 
 });
@@ -87,6 +90,41 @@ if (speedSlider) speedSlider.addEventListener("input", () => {
 
 const dictStyleEl = document.getElementById("dictStyle");
 if (dictStyleEl) dictStyleEl.addEventListener("change", saveSettings);
+
+const speechRateEl = document.getElementById("speechRate");
+if (speechRateEl) speechRateEl.addEventListener("input", () => {
+    if (window.Speech) Speech.setRate(speechRateEl.value);
+    saveSettings();
+});
+
+const listenBook = document.getElementById("listenBook");
+const listenStop = document.getElementById("listenStop");
+
+function syncListenBar() {
+    const busy = window.Speech && Speech.isBusy();
+    if (listenStop) listenStop.disabled = !busy;
+    if (listenBook) listenBook.disabled = !!(window.Speech && Speech.mode === "book");
+    document.body.classList.toggle("speech-on", !!busy);
+}
+
+if (listenBook) listenBook.addEventListener("click", (e) => {
+    e.stopPropagation();
+    popup.close();
+    reader.stop();
+    reader.hideTitle();
+    Speech.speakBook(textContainer);
+});
+
+if (listenStop) listenStop.addEventListener("click", (e) => {
+    e.stopPropagation();
+    Speech.stop();
+});
+
+document.addEventListener("speechState", syncListenBar);
+document.addEventListener("speechBookEnd", function () {
+    syncListenBar();
+});
+syncListenBar();
 
 function bumpSpeed(delta) {
     let v = parseFloat(speedSlider ? speedSlider.value : settings.speed) + delta;
@@ -115,7 +153,8 @@ function saveSettings() {
         font: parseInt(fontSlider ? fontSlider.value : 34, 10),
         line: parseFloat(lineSlider ? lineSlider.value : 2.2),
         dictStyle: (document.getElementById("dictStyle") || {}).value || "simple",
-        paper: document.body.getAttribute("data-paper") || "cream"
+        paper: document.body.getAttribute("data-paper") || "cream",
+        speechRate: parseFloat((document.getElementById("speechRate") || {}).value || (window.Speech && Speech.rate) || 0.95)
 
     };
 
@@ -143,6 +182,11 @@ function loadSettings() {
     settings.speed = Number(data.speed);
 
     applyPaper(data.paper || "cream");
+    if (data.speechRate && window.Speech) {
+        Speech.setRate(data.speechRate);
+        const sr = document.getElementById("speechRate");
+        if (sr) sr.value = data.speechRate;
+    }
 
     if (textContainer) {
         textContainer.style.fontSize = data.font + "px";
@@ -205,7 +249,7 @@ function closePanels(){
 
     }
 
-    if(closed && !reader.awaitingStart){
+    if(closed && !reader.awaitingStart && !(window.Speech && Speech.isBusy())){
 
         reader.start();
 

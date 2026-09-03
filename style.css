@@ -644,7 +644,8 @@
 
 body.popup-open #libraryButton,
 body.popup-open #settingsButton,
-body.popup-open #speedNudge{
+body.popup-open #speedNudge,
+body.popup-open #listenBar{
     opacity:0;
     pointer-events:none;
 }
@@ -726,6 +727,61 @@ body.popup-open #speedNudge{
     min-width:28px;
     text-align:center;
     font-size:13px;
+}
+
+.word.speaking{
+    background:#e7c37a;
+    color:#1c1914;
+    border-radius:6px;
+}
+
+#listenBar{
+    position:fixed;
+    left:16px;
+    bottom:20px;
+    z-index:980;
+    display:flex;
+    gap:8px;
+}
+#listenBar button{
+    border:none;
+    border-radius:999px;
+    padding:12px 16px;
+    background:#2c6e57;
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+#listenBar #listenStop{
+    background:#fffaf2;
+    color:#1c1914;
+    border:1px solid #cbbfa8;
+}
+#listenBar button:disabled{opacity:.45;cursor:default}
+
+#speakAgain{
+    margin-top:12px;
+    width:100%;
+    border:1px solid #cbbfa8;
+    border-radius:12px;
+    padding:12px;
+    background:transparent;
+    color:inherit;
+    font-size:15px;
+    cursor:pointer;
+}
+
+body.popup-open #listenBar{
+    opacity:0;
+    pointer-events:none;
+}
+
+body[data-paper="night"] #listenBar #listenStop{
+    background:#22201c;
+    color:#f3eee6;
+    border-color:#4a453c;
 }
 
 .settings-link{
@@ -885,7 +941,8 @@ body[data-paper="night"] #homeButton{color:#f3eee6}
 
 body.popup-open #libraryButton,
 body.popup-open #settingsButton,
-body.popup-open #speedNudge{
+body.popup-open #speedNudge,
+body.popup-open #listenBar{
     opacity:0;
     pointer-events:none;
 }

@@ -73,6 +73,8 @@
 
     <div id="popupSource"></div>
 
+    <button id="speakAgain" type="button">Sesli oku</button>
+
     <button id="saveWordButton" type="button">Kelime defterime ekle</button>
 
     <details id="suggestBox">
@@ -143,6 +145,14 @@
 
     </div>
 
+    <div class="setting">
+
+        <label>Ses hızı</label>
+
+        <input id="speechRate" type="range" min="0.6" max="1.4" step="0.05" value="0.95">
+
+    </div>
+
     <a class="settings-link" href="settings.html">Ayar laboratuvarı →</a>
 
 </div>
@@ -153,6 +163,11 @@
         <div id="progressFill"></div>
         <div id="progressThumb"></div>
     </div>
+</div>
+
+<div id="listenBar">
+    <button id="listenBook" type="button">Kitabı oku</button>
+    <button id="listenStop" type="button">Durdur</button>
 </div>
 
 <div id="speedNudge">
@@ -176,6 +191,7 @@
 <script src="js/dictionary.js"></script>
 <script src="js/translate.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/speech.js"></script>
 <script src="js/popup.js"></script>
 <script src="js/reader.js"></script>
 <script src="js/app.js"></script>
