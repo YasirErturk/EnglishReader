@@ -1,8 +1,8 @@
 /* Supabase anahtarlarını KURULUM.md adımlarına göre yapıştır. */
 window.APP_CONFIG = {
-    supabaseUrl: "BURAYA_SUPABASE_URL",
-    supabaseAnonKey: "BURAYA_SUPABASE_ANON_KEY",
-    adminEmail: "BURAYA_GMAIL"
+    supabaseUrl: "https://zkncxrgychvgtlswsjss.supabase.co",
+    supabaseAnonKey: "sb_publishable_VZkHt3t4FOhaO3D8dqGX2Q_F8tItsio",
+    adminEmail: "copkutuma@gmail.com"
 };
 
 window.appBase = function () {
