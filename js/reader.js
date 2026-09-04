@@ -24,6 +24,7 @@ class Reader {
         this.demoMode = false;
         this.finishedShown = false;
         this.gateOpen = false;
+        this.resumeAfterPopup = false;
 
         this.reader.addEventListener("click", (e) => {
 
@@ -426,9 +427,10 @@ class Reader {
                 return;
             }
 
+            this.resumeAfterPopup = this.isRunning;
             this.stop();
 
-            document.querySelectorAll(".word").forEach(w => w.classList.remove("selected"));
+            document.querySelectorAll(".word").forEach(w => w.classList.remove("selected", "place-mark"));
             span.classList.add("selected");
             if (readPrefs().autoSpeak) Speech.speakWord(span.textContent);
             this.popup.showWord(span.textContent);

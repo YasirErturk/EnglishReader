@@ -9,16 +9,9 @@
 <link rel="stylesheet" href="css/site.css">
 <link rel="icon" href="assets/logo.png">
 <style>
-body[data-paper="cream"]{background:#f3ead8;color:#1c1914}
-body[data-paper="paper"]{background:#fffaf2;color:#1a1916}
-body[data-paper="sage"]{background:#e7efe8;color:#1a2a22}
-body[data-paper="night"]{background:#161513;color:#f3eee6}
-body[data-paper="night"] .nav .btn-ghost{color:#f3eee6;border-color:#4a453c}
-body[data-paper="night"] .card{background:#22201c;border-color:#3a362f;color:#f3eee6}
-body[data-paper="night"] .muted,body[data-paper="night"] .sub{color:#a39b8f}
 .settings-grid{
     display:grid;
-    grid-template-columns:minmax(280px,1fr) minmax(280px,1.1fr);
+    grid-template-columns:minmax(280px,1fr) minmax(300px,1.15fr);
     gap:28px;
     padding:8px 0 80px;
     align-items:start;
@@ -46,27 +39,140 @@ body[data-paper="night"] .muted,body[data-paper="night"] .sub{color:#a39b8f}
 .swatches [data-paper="sage"]{background:#dce8df !important}
 .swatches [data-paper="night"]{background:#1c1b19 !important}
 .preview-card{
-    height:min(640px, calc(100vh - 160px));
-    overflow:hidden;
-    position:relative;
-    padding:0;
+    padding:16px 16px 14px;
+    background:#d7c4a2;
+    border:1px solid #cbb48a;
 }
+.preview-book{
+    --book-font:34px;
+    --book-line:2.2;
+    height:min(560px, calc(100vh - 250px));
+    overflow:hidden;
+    border-radius:16px;
+    background:#f3ead8;
+    color:#1c1914;
+    box-shadow:0 14px 36px rgba(40,24,8,.16), 0 0 0 1px rgba(80,50,20,.08);
+}
+.preview-book[data-paper="cream"]{background:#f3ead8;color:#1c1914}
+.preview-book[data-paper="paper"]{background:#fffaf2;color:#1a1916}
+.preview-book[data-paper="sage"]{background:#e7efe8;color:#1a2a22}
+.preview-book[data-paper="night"]{background:#161513;color:#f3eee6}
 #previewRead{
     height:100%;
-    overflow:hidden;
-    padding:36px 28px 80px;
+    overflow-y:auto;
+    padding:28px 24px 64px;
+    scrollbar-width:none;
 }
+#previewRead::-webkit-scrollbar{display:none}
 #previewText{
     max-width:42ch;
     margin:0 auto;
-    font-family:Fraunces,Georgia,serif;
-    line-height:1.8;
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:var(--book-font);
+    line-height:var(--book-line);
+    user-select:none;
 }
-#previewText p{margin:0 0 1.2em}
+#previewText p{
+    margin:0 0 1em;
+    font-size:inherit;
+    line-height:inherit;
+}
+.preview-book .word{
+    cursor:pointer;
+    padding:1px 3px;
+    border-radius:6px;
+}
+.preview-book .word:hover{background:#3478f6;color:#fff}
+.preview-book .word.selected{background:#ffc107;color:#000}
+.preview-book .sentence-band{
+    background:rgba(231,195,122,.5);
+    border-radius:8px;
+    box-decoration-break:clone;
+    -webkit-box-decoration-break:clone;
+}
+.preview-book .word.speaking-word{background:#d9922f !important;color:#1c1914}
+.preview-book .word.place-mark{
+    background:#e7c37a;
+    color:#1c1914;
+    animation:placeFade 2.2s ease forwards;
+}
+@keyframes placeFade{
+    0%,40%{background:#e7c37a}
+    100%{background:transparent;color:inherit}
+}
+.preview-dock{
+    display:flex;
+    justify-content:center;
+    margin-top:12px;
+}
+.preview-dock .listen{
+    display:flex;
+    gap:8px;
+    padding:6px 8px;
+    background:rgba(255,250,242,.92);
+    border:1px solid #cbb48a;
+    border-radius:999px;
+}
+.preview-dock button{
+    width:42px;height:42px;border:none;border-radius:50%;
+    background:#2c6e57;color:#fff;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;
+}
+.preview-dock #previewPause,
+.preview-dock #previewStop{
+    background:#fffaf2;color:#1c1914;border:1px solid #cbbfa8;
+}
+.preview-dock button:disabled{opacity:.4;cursor:default}
 .hello{margin-top:8px}
+
+#overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.35);
+    opacity:0;pointer-events:none;transition:.25s;z-index:996;
+}
+#overlay.show{opacity:1;pointer-events:auto}
+#popup{
+    position:fixed;left:50%;bottom:0;width:min(560px, calc(100% - 40px));
+    background:#fffaf2;color:#1c1914;border-radius:24px 24px 0 0;
+    padding:22px 22px 28px;transition:transform .3s;z-index:1001;
+    max-height:70vh;overflow-y:auto;transform:translate(-50%,110%);
+}
+#popup.show{transform:translate(-50%,0)}
+#popupHandle{width:60px;height:6px;background:#cbbfa8;margin:0 auto 18px;border-radius:20px}
+#popupKind{display:none}
+#popupWordRow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#popupWord{font-size:26px;font-weight:700;flex:1;min-width:0;word-break:break-word}
+#speakIcon{
+    flex:none;width:40px;height:40px;border:none;border-radius:50%;
+    background:transparent;color:inherit;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;
+}
+#saveWordButton{
+    width:auto;margin:0;padding:8px 12px;border:none;border-radius:999px;
+    background:#2c6e57;color:#fff;font-size:13px;font-weight:600;
+    display:none;align-items:center;gap:6px;cursor:pointer;font-family:Outfit,Arial,sans-serif;
+}
+#saveWordButton.saved{background:#c9783a}
+#popupMeaning{font-size:18px;color:#3a342c;line-height:1.45;white-space:pre-wrap}
+#popupSource{margin-top:10px;font-size:12px;color:#2c6e57}
+#suggestBox{margin-top:14px;font-size:13px;color:#8a8378}
+#suggestBox summary{cursor:pointer;list-style:none}
+#suggestBox summary::-webkit-details-marker{display:none}
+#suggestMeaning{
+    width:100%;background:transparent;color:inherit;border:none;
+    border-bottom:1px solid #ccc;padding:8px 0;font:inherit;margin:8px 0;
+}
+#suggestWordButton{
+    width:auto;padding:8px 14px;background:transparent;color:inherit;
+    border:1px solid #aaa;border-radius:999px;font-size:13px;cursor:pointer;
+}
+#suggestWordButton:disabled{opacity:.4;cursor:default}
+@media (max-width:900px){
+    .settings-grid{grid-template-columns:1fr}
+    .preview-book{height:min(420px, 70vh)}
+}
 </style>
 </head>
-<body data-paper="cream">
+<body>
 <div class="wrap">
     <nav class="nav">
         <a class="brand" href="index.html">
@@ -75,6 +181,8 @@ body[data-paper="night"] .muted,body[data-paper="night"] .sub{color:#a39b8f}
         </a>
         <div class="nav-actions">
             <a class="btn btn-ghost" href="index.html">Ana sayfa</a>
+            <a class="btn btn-ghost" href="library.html">Kütüphane</a>
+            <a class="btn btn-ghost" href="shelf.html">Kitaplığım</a>
             <a class="btn btn-blue" href="settings.html">Ayarlar</a>
             <a class="btn btn-ghost" href="dashboard.html" id="panelLink" style="display:none">Panelim</a>
             <button class="btn btn-google" id="loginButton" type="button">Google ile üye ol</button>
@@ -83,13 +191,13 @@ body[data-paper="night"] .muted,body[data-paper="night"] .sub{color:#a39b8f}
     </nav>
 
     <h1 class="hello">Ayarlar</h1>
-    <p class="sub">Okuyucu bu değerleri hatırlar. Kaydetmeden çıkarsan son kayıt kalır.</p>
+    <p class="sub">Sağdaki çerçeve kitabın kendisi. Kaydetmeden çıkarsan son kayıt kalır.</p>
 
     <div class="settings-grid">
         <div class="card">
             <div class="field">
-                <label>Kaydırma hızı <span id="speedLabel">0.6</span></label>
-                <input id="speedSlider" type="range" min="0.2" max="7" step="0.1" value="0.6">
+                <label>Kaydırma hızı <span id="speedLabel">0.75</span></label>
+                <input id="speedSlider" type="range" min="0" max="10" step="1" value="2">
             </div>
             <div class="field">
                 <label>Yazı boyutu</label>
@@ -140,134 +248,67 @@ body[data-paper="night"] .muted,body[data-paper="night"] .sub{color:#a39b8f}
         </div>
 
         <div class="card preview-card">
-            <div id="previewRead">
-                <div id="previewText"></div>
+            <div class="preview-book" id="previewBook" data-paper-surface data-paper="cream">
+                <div id="previewRead">
+                    <div id="previewText"></div>
+                </div>
+            </div>
+            <div class="preview-dock">
+                <div class="listen">
+                    <button id="previewPlay" type="button" title="Buradan oku">
+                        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+                    </button>
+                    <button id="previewPause" type="button" title="Duraklat">
+                        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+                    </button>
+                    <button id="previewStop" type="button" title="Durdur">
+                        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M6 6h12v12H6z"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+</div>
+
+<div id="overlay"></div>
+<div id="popup">
+    <div id="popupHandle"></div>
+    <div id="popupKind" hidden></div>
+    <div id="popupWordRow">
+        <div id="popupWord"></div>
+        <button id="speakIcon" type="button" title="Sesli oku" aria-label="Sesli oku">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path fill="currentColor" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7.5 7.5 0 0 1 0 13.42v2.06a9.5 9.5 0 0 0 0-17.54z"/>
+            </svg>
+        </button>
+        <button id="saveWordButton" type="button" title="Kelime defterime ekle">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path fill="currentColor" d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>
+            </svg>
+            <span class="save-label">Deftere</span>
+        </button>
+    </div>
+    <div id="popupMeaning"></div>
+    <div id="popupSource"></div>
+    <details id="suggestBox">
+        <summary>Anlamı öner</summary>
+        <input id="suggestMeaning" type="text" placeholder="…" maxlength="160" autocomplete="off">
+        <button id="suggestWordButton" type="button" disabled>Gönder</button>
+    </details>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script src="js/prefs.js"></script>
 <script src="js/api.js"></script>
+<script src="dictionary/tr.js"></script>
+<script src="dictionary/extra.js"></script>
+<script src="dictionary/fixes.js"></script>
+<script src="js/dictionary.js"></script>
+<script src="js/translate.js"></script>
+<script src="js/speech.js"></script>
+<script src="js/popup.js"></script>
 <script src="js/settings.js"></script>
-<script>
-const SAMPLE = [
-    "Reading a book in English is a quiet kind of travel. Each page asks you to listen, to notice a new word, and to stay with a sentence until it opens.",
-    "When you read slowly, meaning arrives like morning light. You do not force it. You let the story teach you how it wants to be heard.",
-    "A good book keeps you company. It does not hurry. It offers the same line again until your ear recognizes it as music.",
-    "To learn a language is to make a home in someone else's words. Keep reading. The path is made of pages, and every page is a small door."
-];
-
-const box = document.getElementById("previewText");
-const scroller = document.getElementById("previewRead");
-const speedSlider = document.getElementById("speedSlider");
-const fontSlider = document.getElementById("fontSlider");
-const lineSlider = document.getElementById("lineSlider");
-const dictStyle = document.getElementById("dictStyle");
-const speechRate = document.getElementById("speechRate");
-const voiceProfile = document.getElementById("voiceProfile");
-const autoSpeak = document.getElementById("autoSpeak");
-const speedLabel = document.getElementById("speedLabel");
-const saveBtn = document.getElementById("saveBtn");
-const settings = new Settings();
-
-function para(text) {
-    const p = document.createElement("p");
-    p.textContent = text;
-    return p;
-}
-
-function fill() {
-    SAMPLE.forEach(function (t) { box.appendChild(para(t)); });
-}
-fill();
-fill();
-
-function apply() {
-    settings.speed = parseFloat(speedSlider.value);
-    box.style.fontSize = fontSlider.value + "px";
-    box.style.lineHeight = lineSlider.value;
-    speedLabel.textContent = Number(speedSlider.value).toFixed(1);
-}
-
-function collect() {
-    return {
-        speed: parseFloat(speedSlider.value),
-        font: parseInt(fontSlider.value, 10),
-        line: parseFloat(lineSlider.value),
-        dictStyle: dictStyle.value,
-        speechRate: parseFloat(speechRate.value),
-        voiceProfile: voiceProfile.value,
-        autoSpeak: !!autoSpeak.checked,
-        paper: document.body.getAttribute("data-paper") || "cream"
-    };
-}
-
-function markDirty() {
-    saveBtn.textContent = "Kaydet";
-}
-
-function load() {
-    const data = readPrefs();
-    speedSlider.value = data.speed;
-    fontSlider.value = data.font;
-    lineSlider.value = data.line;
-    dictStyle.value = data.dictStyle;
-    speechRate.value = data.speechRate;
-    voiceProfile.value = data.voiceProfile || "woman";
-    autoSpeak.checked = !!data.autoSpeak;
-    applyPaper(data.paper || "cream");
-    apply();
-}
-
-[speedSlider, fontSlider, lineSlider, speechRate].forEach(function (el) {
-    el.addEventListener("input", function () {
-        apply();
-        markDirty();
-    });
-});
-[dictStyle, voiceProfile, autoSpeak].forEach(function (el) {
-    el.addEventListener("change", markDirty);
-});
-
-document.querySelectorAll("#paperSwatches button").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-        applyPaper(btn.getAttribute("data-paper"));
-        markDirty();
-    });
-});
-
-saveBtn.addEventListener("click", function () {
-    writePrefs(collect());
-    this.textContent = "Kaydedildi";
-});
-
-scroller.addEventListener("scroll", function () {
-    if (scroller.scrollTop + scroller.clientHeight > scroller.scrollHeight - 400) fill();
-});
-
-load();
-
-(function loop() {
-    scroller.scrollTop += settings.speed;
-    requestAnimationFrame(loop);
-})();
-
-(async function nav() {
-    const login = document.getElementById("loginButton");
-    const logout = document.getElementById("logoutButton");
-    const panel = document.getElementById("panelLink");
-    if (login) login.addEventListener("click", function () { API.signInGoogle(); });
-    if (logout) logout.addEventListener("click", API.signOut);
-    if (!API.configured) return;
-    const session = await API.getSession();
-    if (!session) return;
-    if (login) login.style.display = "none";
-    if (logout) logout.style.display = "inline-flex";
-    if (panel) panel.style.display = "inline-flex";
-})();
-</script>
+<script src="js/settings-page.js"></script>
 </body>
 </html>

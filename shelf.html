@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitaplığım · English Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+<div class="wrap">
+    <nav class="nav">
+        <a class="brand" href="index.html">
+            <img src="assets/logo.png" alt="">
+            English Reader
+        </a>
+        <div class="nav-actions">
+            <a class="btn btn-ghost" href="index.html">Ana sayfa</a>
+            <a class="btn btn-ghost" href="library.html">Kütüphane</a>
+            <a class="btn btn-blue" href="shelf.html">Kitaplığım</a>
+            <a class="btn btn-ghost" href="settings.html">Ayarlar</a>
+            <a class="btn btn-ghost" href="dashboard.html" id="panelLink" style="display:none">Panelim</a>
+            <button class="btn btn-google" id="loginButton" type="button">Google ile üye ol</button>
+            <button class="btn btn-ghost" id="logoutButton" type="button" style="display:none">Çıkış</button>
+        </div>
+    </nav>
+
+    <header class="page-head">
+        <p class="kicker">Senin yerin</p>
+        <h1 class="hello">Kitaplığım</h1>
+        <p class="sub">Okudukların, bekleyenler, favoriler. Her kitabın yanında not bırak. Analiz yok — çalışma masası.</p>
+    </header>
+
+    <div class="tabs" id="shelfTabs">
+        <button class="tab active" type="button" data-tab="reading">Okuduklarım</button>
+        <button class="tab" type="button" data-tab="favorites">Favoriler</button>
+        <button class="tab" type="button" data-tab="wishlist">Okumak istediklerim</button>
+    </div>
+
+    <div id="shelfEmpty" class="card empty-card" style="display:none"></div>
+    <div class="shelf-list" id="shelfList"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/prefs.js"></script>
+<script src="js/access.js"></script>
+<script src="js/api.js"></script>
+<script src="books/library.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/shelf-page.js"></script>
+</body>
+</html>

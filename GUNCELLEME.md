@@ -2,43 +2,13 @@
 
 1. **`js/config.js` üzerine yazma.** Zip’te yok.
 2. Zip’i klasöre kopyala (replace all).
-3. SQL: `05` hiç koşmadıysa onu, sonra `06`, sonra `07`.
 
-Silinen dosya: `js/plans.js` (kullanılmıyordu).
-
-## Üyelik kapısı
-
-Sitede (GitHub Pages) kitap okumak için Google üyeliği gerekir.
-
-Üyesiz yalnız **Alice in Wonderland** önizlemesi (ilk birkaç sayfa). Bitince üye ol ekranı çıkar.
-
-`file://` ile D: üzerinde deneme: kapı yok, tüm kitaplar açılır.
-
-## Kitap bitti
-
-Metin bitince kart: **Ana sayfa** / **Başka kitap** / **Baştan oku**.
-
-## Öneri
-
-Popup’ta büyük kutu yok. Küçük **Anlamı öner** satırı; açınca kısa düzeltme.
-
-## Sözlük
-
-`dictionary/extra.js` ile yüzlerce ek madde. `fixes.js` hâlâ width/depth düzeltir.
-
-## Tema
-
-Site krem / yeşil — eğitim, “gel oku”. Gothic siyah gitti.
-
-Okuyucuda **sayfa rengi:** krem, beyaz, adaçayı, gece.
-
-## Sesli okuma
-
-Altyapı: `js/speech.js`. Ayarlar `readerSettings` içinde birleşir (lab + okuyucu).
-
-- Hoparlör ikonu (Google Translate gibi) tıklanınca okur
-- Lab: **Her çeviriyi sesli oku** tik — kapalıysa otomatik okumaz
-- Ses: kadın / erkek / yaşlı / genç / çocuk
-- Ortadaki ▶ buradan okur, II duraklatır, ■ durdurur
-- Cümle bandı + okunan kelime daha koyu
-- Popup metin genişliğinde (700px)
+- Ayarlar önizlemesi kitap gibi: kağıt rengi çerçeve içinde, satır aralığı görünür, kelime tıklanır, altta ▶ II ■
+- Kaydırma: 0 durur; adımlar 0 / 0.25 / 0.5 / 0.75 / 1 / 1.25 / 1.5 / 2 / 3 / 4 / 6
+- Okuyucuda F5 rengi seçilen kağıttan gelir
+- Sesli okumada kelime arkası cümleyle birlikte yürür
+- Alttaki kitap listesi kalktı; Ana sayfa menü açar
+- Yeni sayfalar: `library.html` (Kütüphane), `shelf.html` (Kitaplığım)
+- Play çubuğu bir süre dokunulmazsa solar
+- Sözlük: kelime etiketi yok, küçük Deftere, boş öneri gitmez
+- Akış duruyorsa sözlük kapanınca durmaya devam eder; tıklanan kelime kısa işaretlenir

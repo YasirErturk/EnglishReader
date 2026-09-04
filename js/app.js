@@ -23,10 +23,8 @@ async function init(){
         await API.getProfile();
     }
 
-    const home = document.getElementById("homeButton");
-    if (home) home.href = "index.html";
-
-    await loadLibrary();
+    bindHomeMenu();
+    bindListenIdle();
 
     loadSettings();
     updateSpeedLabel();
@@ -35,10 +33,19 @@ async function init(){
 
 }
 
-document.addEventListener("popupClosed", () => {
+function maybeResumeScroll() {
     if (window.Speech && Speech.isBusy()) return;
-    if (!reader.awaitingStart && !reader.gateOpen && !reader.finishedShown) reader.start();
-});
+    if (!reader.resumeAfterPopup) return;
+    if (reader.awaitingStart || reader.gateOpen || reader.finishedShown) {
+        reader.resumeAfterPopup = false;
+        return;
+    }
+    reader.resumeAfterPopup = false;
+    reader.start();
+}
+
+document.addEventListener("popupClosed", maybeResumeScroll);
+document.addEventListener("speechState", maybeResumeScroll);
 
 if (settingsButton) settingsButton.addEventListener("click", (e) => {
 
@@ -47,9 +54,10 @@ if (settingsButton) settingsButton.addEventListener("click", (e) => {
     popup.close();
 
     reader.stop();
-    
-    libraryPanel.classList.remove("show");
-    
+
+    const libraryPanel = document.getElementById("libraryPanel");
+    if (libraryPanel) libraryPanel.classList.remove("show");
+
     settingsPanel.classList.toggle("show");
 
 });
@@ -58,17 +66,16 @@ document.addEventListener("click",(e)=>{
 
     if(settingsPanel && settingsPanel.contains(e.target)) return;
 
-    if(libraryPanel && libraryPanel.contains(e.target)) return;
-
     if(settingsButton && settingsButton.contains(e.target)) return;
-
-    if(libraryButton && libraryButton.contains(e.target)) return;
 
     if (e.target.closest && e.target.closest("#speedNudge")) return;
 
     if (e.target.closest && e.target.closest("#listenBar")) return;
 
+    if (e.target.closest && e.target.closest("#homeMenuWrap")) return;
+
     closePanels();
+    closeHomeMenu();
 
 });
 
@@ -83,7 +90,8 @@ if (lineSlider) lineSlider.addEventListener("input", () => {
 });
 
 if (speedSlider) speedSlider.addEventListener("input", () => {
-    settings.speed = parseFloat(speedSlider.value);
+    const i = parseInt(speedSlider.value, 10);
+    settings.speed = SPEED_STEPS[i] != null ? SPEED_STEPS[i] : snapSpeed(speedSlider.value);
     updateSpeedLabel();
     saveSettings();
 });
@@ -97,9 +105,22 @@ if (speechRateEl) speechRateEl.addEventListener("input", () => {
     saveSettings();
 });
 
+const voiceProfileEl = document.getElementById("voiceProfile");
+if (voiceProfileEl) voiceProfileEl.addEventListener("change", () => {
+    if (window.Speech) {
+        Speech.profile = voiceProfileEl.value;
+        Speech.pickVoice();
+    }
+    saveSettings();
+});
+
+const autoSpeakEl = document.getElementById("autoSpeak");
+if (autoSpeakEl) autoSpeakEl.addEventListener("change", saveSettings);
+
 const listenPlay = document.getElementById("listenPlay");
 const listenPause = document.getElementById("listenPause");
 const listenStop = document.getElementById("listenStop");
+const listenBar = document.getElementById("listenBar");
 
 function syncListenBar() {
     const busy = window.Speech && Speech.isBusy();
@@ -116,12 +137,13 @@ function startBook(from) {
     reader.stop();
     reader.hideTitle();
     requestAnimationFrame(function () {
-        Speech.speakBook(textContainer, from);
+        Speech.speakBook(textContainer, from, document.getElementById("reader"));
     });
 }
 
 if (listenPlay) listenPlay.addEventListener("click", (e) => {
     e.stopPropagation();
+    pokeListen();
     if (window.Speech && Speech.paused) {
         Speech.resume();
         return;
@@ -131,11 +153,13 @@ if (listenPlay) listenPlay.addEventListener("click", (e) => {
 
 if (listenPause) listenPause.addEventListener("click", (e) => {
     e.stopPropagation();
+    pokeListen();
     Speech.pause();
 });
 
 if (listenStop) listenStop.addEventListener("click", (e) => {
     e.stopPropagation();
+    pokeListen();
     Speech.stop();
 });
 
@@ -145,29 +169,28 @@ document.addEventListener("speechBookEnd", function () {
 });
 syncListenBar();
 
-function bumpSpeed(delta) {
-    let v = parseFloat(speedSlider ? speedSlider.value : settings.speed) + delta;
-    v = Math.round(v * 10) / 10;
-    v = Math.max(0.2, Math.min(7, v));
-    settings.speed = v;
-    if (speedSlider) speedSlider.value = v;
+function bumpSpeed(dir) {
+    let i = speedIndex(settings.speed) + dir;
+    i = Math.max(0, Math.min(SPEED_STEPS.length - 1, i));
+    settings.speed = SPEED_STEPS[i];
+    if (speedSlider) speedSlider.value = i;
     updateSpeedLabel();
     saveSettings();
 }
 
 function updateSpeedLabel() {
-    if (speedValue) speedValue.textContent = Number(settings.speed).toFixed(1);
+    if (speedValue) speedValue.textContent = formatSpeed(settings.speed);
 }
 
 const speedUp = document.getElementById("speedUp");
 const speedDown = document.getElementById("speedDown");
-if (speedUp) speedUp.addEventListener("click", (e) => { e.stopPropagation(); bumpSpeed(0.1); });
-if (speedDown) speedDown.addEventListener("click", (e) => { e.stopPropagation(); bumpSpeed(-0.1); });
+if (speedUp) speedUp.addEventListener("click", (e) => { e.stopPropagation(); bumpSpeed(1); });
+if (speedDown) speedDown.addEventListener("click", (e) => { e.stopPropagation(); bumpSpeed(-1); });
 
 function saveSettings() {
 
     writePrefs({
-        speed: parseFloat(speedSlider ? speedSlider.value : settings.speed),
+        speed: settings.speed,
         font: parseInt(fontSlider ? fontSlider.value : 34, 10),
         line: parseFloat(lineSlider ? lineSlider.value : 2.2),
         dictStyle: (document.getElementById("dictStyle") || {}).value || "simple",
@@ -183,13 +206,18 @@ function loadSettings() {
 
     const data = readPrefs();
 
-    if (speedSlider) speedSlider.value = data.speed;
+    if (speedSlider) {
+        speedSlider.min = 0;
+        speedSlider.max = SPEED_STEPS.length - 1;
+        speedSlider.step = 1;
+        speedSlider.value = speedIndex(data.speed);
+    }
     if (fontSlider) fontSlider.value = data.font;
     if (lineSlider) lineSlider.value = data.line;
     const dictStyle = document.getElementById("dictStyle");
     if (dictStyle && data.dictStyle) dictStyle.value = data.dictStyle;
 
-    settings.speed = Number(data.speed);
+    settings.speed = snapSpeed(data.speed);
 
     applyPaper(data.paper || "cream");
     if (window.Speech) Speech.applyPrefs();
@@ -215,23 +243,6 @@ document.querySelectorAll("#paperSwatches button").forEach(function (btn) {
     });
 });
 
-const libraryButton = document.getElementById("libraryButton");
-const libraryPanel = document.getElementById("libraryPanel");
-
-if (libraryButton) libraryButton.addEventListener("click",(e)=>{
-
-    e.stopPropagation();
-
-    popup.close();
-
-    reader.stop();
-
-    settingsPanel.classList.remove("show");
-
-    libraryPanel.classList.toggle("show");
-
-});
-
 function closePanels(){
 
     let closed = false;
@@ -239,14 +250,6 @@ function closePanels(){
     if(settingsPanel && settingsPanel.classList.contains("show")){
 
         settingsPanel.classList.remove("show");
-
-        closed = true;
-
-    }
-
-    if(libraryPanel && libraryPanel.classList.contains("show")){
-
-        libraryPanel.classList.remove("show");
 
         closed = true;
 
@@ -260,50 +263,40 @@ function closePanels(){
 
 }
 
-async function loadLibrary(){
-
-    const panel = document.getElementById("libraryPanel");
-    if (!panel) return;
-
-    panel.innerHTML = "<h2>📚 Kitaplık</h2>";
-
-    let books = LIBRARY.slice();
-
-    if (window.API && API.configured) {
-        try {
-            const remote = await API.listBooks();
-            if (remote && remote.length) {
-                books = remote.map(function (b) {
-                    return {
-                        title: b.title + (b.is_copyrighted ? " 🔒" : ""),
-                        file: (b.slug || "book") + ".txt"
-                    };
-                });
-            }
-        } catch (err) {}
-    }
-
-    books.forEach(book=>{
-
-        const div=document.createElement("div");
-
-        div.className="book";
-
-        const file = book.file;
-        const locked = !canReadFull() && !isDemoBook(file);
-        div.innerText = book.title + (locked ? " · üye" : "");
-        if (locked) div.classList.add("locked");
-
-        div.onclick=()=>{
-
-            localStorage.setItem("currentBook", file);
-
-            location.href = "reader.html?book=" + encodeURIComponent(file);
-
-        };
-
-        panel.appendChild(div);
-
+function bindHomeMenu() {
+    const btn = document.getElementById("homeButton");
+    const menu = document.getElementById("homeMenu");
+    if (!btn || !menu) return;
+    btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        menu.classList.toggle("show");
+        btn.setAttribute("aria-expanded", menu.classList.contains("show") ? "true" : "false");
     });
+}
 
+function closeHomeMenu() {
+    const menu = document.getElementById("homeMenu");
+    const btn = document.getElementById("homeButton");
+    if (menu) menu.classList.remove("show");
+    if (btn) btn.setAttribute("aria-expanded", "false");
+}
+
+let listenIdleTimer = null;
+
+function pokeListen() {
+    if (!listenBar) return;
+    listenBar.classList.remove("dim");
+    clearTimeout(listenIdleTimer);
+    listenIdleTimer = setTimeout(function () {
+        if (listenBar) listenBar.classList.add("dim");
+    }, 3800);
+}
+
+function bindListenIdle() {
+    if (!listenBar) return;
+    ["pointerdown", "pointerenter", "focusin"].forEach(function (ev) {
+        listenBar.addEventListener(ev, pokeListen);
+    });
+    pokeListen();
 }

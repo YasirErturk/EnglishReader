@@ -2,7 +2,7 @@ class Settings {
 
     constructor() {
 
-        this.speed = 0.6;
+        this.speed = 0.75;
 
         this.fontSize = 34;
 

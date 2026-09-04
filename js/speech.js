@@ -15,6 +15,12 @@ window.Speech = {
     _bookIndex: 0,
     _timer: null,
     _opts: null,
+    _unit: null,
+    _wordRaf: null,
+    _wordStarted: 0,
+    _wordPausedTotal: 0,
+    _pauseAt: 0,
+    _chunkOffset: 0,
 
     supported: function () {
         return typeof window !== "undefined" && "speechSynthesis" in window;
@@ -157,6 +163,36 @@ window.Speech = {
         if (hit) hit.classList.add("speaking-word");
     },
 
+    _stopWordTick: function () {
+        if (this._wordRaf) {
+            cancelAnimationFrame(this._wordRaf);
+            this._wordRaf = null;
+        }
+    },
+
+    _charsPerMs: function () {
+        const rate = this.rate || 0.95;
+        return (14.5 * rate) / 1000;
+    },
+
+    _tickWords: function () {
+        const self = this;
+        this._stopWordTick();
+        const step = function () {
+            if (!self.speaking || !self._unit) {
+                self._wordRaf = null;
+                return;
+            }
+            if (!self.paused && self._wordStarted) {
+                const elapsed = Date.now() - self._wordStarted - (self._wordPausedTotal || 0);
+                const idx = self._chunkOffset + elapsed * self._charsPerMs();
+                self.markWordAt(idx);
+            }
+            self._wordRaf = requestAnimationFrame(step);
+        };
+        this._wordRaf = requestAnimationFrame(step);
+    },
+
     chunk: function (text) {
         const clean = String(text || "").replace(/\s+/g, " ").trim();
         if (!clean) return [];
@@ -228,9 +264,23 @@ window.Speech = {
         if (this.voice) u.voice = this.voice;
 
         const self = this;
+        const prefix = this.queue.slice(0, this.index).join(" ");
+        this._chunkOffset = prefix ? prefix.length + 1 : 0;
+
+        u.onstart = function () {
+            self._wordStarted = Date.now();
+            self._wordPausedTotal = 0;
+            self._pauseAt = 0;
+            self._tickWords();
+        };
         u.onboundary = function (evt) {
-            if (!evt || (evt.name !== "word" && evt.name !== "Word")) return;
-            self.markWordAt(evt.charIndex);
+            if (!evt) return;
+            const name = String(evt.name || "").toLowerCase();
+            if (name && name !== "word") return;
+            const idx = self._chunkOffset + (evt.charIndex || 0);
+            const msPerChar = 1 / self._charsPerMs();
+            self._wordStarted = Date.now() - idx * msPerChar - (self._wordPausedTotal || 0);
+            self.markWordAt(idx);
         };
         const step = function () {
             if (!self.speaking) return;
@@ -262,6 +312,7 @@ window.Speech = {
     speakWord: function (word) {
         const t = String(word || "").trim();
         if (!t) return false;
+        this._unit = null;
         this.clearHighlight();
         return this.speak(t, { mode: "word" });
     },
@@ -373,6 +424,7 @@ window.Speech = {
             return;
         }
         const unit = this._book[this._bookIndex];
+        this._unit = unit;
         this.highlight(unit.spans);
         this.queue = this.chunk(unit.text);
         this.index = 0;
@@ -389,6 +441,9 @@ window.Speech = {
         this.mode = null;
         this._book = null;
         this._opts = null;
+        this._stopWordTick();
+        this._wordStarted = 0;
+        this._pauseAt = 0;
         if (this._timer) {
             clearTimeout(this._timer);
             this._timer = null;
@@ -401,6 +456,7 @@ window.Speech = {
     pause: function () {
         if (!this.supported() || !this.speaking) return;
         this.paused = true;
+        this._pauseAt = Date.now();
         try { speechSynthesis.pause(); } catch (err) {}
         this.emit();
     },
@@ -408,6 +464,10 @@ window.Speech = {
     resume: function () {
         if (!this.supported() || !this.paused) return;
         this.paused = false;
+        if (this._pauseAt) {
+            this._wordPausedTotal = (this._wordPausedTotal || 0) + (Date.now() - this._pauseAt);
+            this._pauseAt = 0;
+        }
         try { speechSynthesis.resume(); } catch (err) {}
         this.emit();
     }

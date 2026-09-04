@@ -9,6 +9,15 @@
 
 <title>English Reader</title>
 
+<script>
+(function () {
+    try {
+        var d = JSON.parse(localStorage.getItem("readerSettings") || "{}");
+        if (d.paper) document.documentElement.setAttribute("data-paper", d.paper);
+    } catch (e) {}
+})();
+</script>
+
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="assets/logo.png">
 
@@ -16,10 +25,19 @@
 
 <body data-paper="cream">
 
-<a id="homeButton" href="index.html" title="Ana sayfa">
-    <img src="assets/logo.png" alt="">
-    <span>Ana sayfa</span>
-</a>
+<div id="homeMenuWrap">
+    <button id="homeButton" type="button" title="Menü" aria-expanded="false" aria-haspopup="true">
+        <img src="assets/logo.png" alt="">
+        <span>Ana sayfa</span>
+    </button>
+    <nav id="homeMenu" aria-label="Okuyucu menüsü">
+        <a href="index.html">Ana sayfa</a>
+        <a href="library.html">Kütüphane</a>
+        <a href="shelf.html">Kitaplığım</a>
+        <a href="settings.html">Ayarlar</a>
+        <a href="dashboard.html">Panelim</a>
+    </nav>
+</div>
 
 <main id="reader">
 
@@ -53,7 +71,7 @@
     <p>Bu kitabı tamamladın. Ana sayfadan yenisine geçebilir veya baştan okuyabilirsin.</p>
     <div class="sheetActions">
         <button class="sheetBtn" id="finishHome" type="button">Ana sayfa</button>
-        <a class="sheetBtn ghost" id="finishNext" href="index.html#katalog">Başka kitap</a>
+        <a class="sheetBtn ghost" id="finishNext" href="library.html">Kütüphane</a>
         <button class="sheetBtn ghost" id="finishAgain" type="button">Baştan oku</button>
         <button class="sheetBtn ghost" id="finishJoin" type="button">Üye ol</button>
     </div>
@@ -65,7 +83,7 @@
 
     <div id="popupHandle"></div>
 
-    <div id="popupKind"></div>
+    <div id="popupKind" hidden></div>
 
     <div id="popupWordRow">
         <div id="popupWord"></div>
@@ -74,28 +92,25 @@
                 <path fill="currentColor" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7.5 7.5 0 0 1 0 13.42v2.06a9.5 9.5 0 0 0 0-17.54z"/>
             </svg>
         </button>
+        <button id="saveWordButton" type="button" title="Kelime defterime ekle">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path fill="currentColor" d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>
+            </svg>
+            <span class="save-label">Deftere</span>
+        </button>
     </div>
 
     <div id="popupMeaning"></div>
 
     <div id="popupSource"></div>
 
-    <button id="saveWordButton" type="button">Kelime defterime ekle</button>
-
     <details id="suggestBox">
         <summary>Anlamı öner</summary>
-        <input id="suggestMeaning" type="text" placeholder="Kısa düzeltme">
-        <button id="suggestWordButton" type="button">Gönder</button>
+        <input id="suggestMeaning" type="text" placeholder="…" maxlength="160" autocomplete="off">
+        <button id="suggestWordButton" type="button" disabled>Gönder</button>
     </details>
 
 </div>
-
-<div id="libraryPanel">
-
-    <h2>Kitaplık</h2>
-
-</div>
-
 
 <div id="settingsPanel">
 
@@ -105,7 +120,7 @@
 
         <label>Hız</label>
 
-        <input id="speedSlider" type="range" min="0.2" max="7" step="0.1" value="0.6">
+        <input id="speedSlider" type="range" min="0" max="10" step="1" value="2">
 
     </div>
 
@@ -202,12 +217,11 @@
 
 <div id="speedNudge">
     <button id="speedUp" type="button">+</button>
-    <span id="speedValue">0.6</span>
+    <span id="speedValue">0.75</span>
     <button id="speedDown" type="button">−</button>
 </div>
 
 
-<button id="libraryButton">📚</button>
 <button id="settingsButton">⚙️</button>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
