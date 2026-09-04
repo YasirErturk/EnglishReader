@@ -97,16 +97,17 @@ if (speechRateEl) speechRateEl.addEventListener("input", () => {
     saveSettings();
 });
 
-const listenHere = document.getElementById("listenHere");
-const listenStart = document.getElementById("listenStart");
+const listenPlay = document.getElementById("listenPlay");
+const listenPause = document.getElementById("listenPause");
 const listenStop = document.getElementById("listenStop");
 
 function syncListenBar() {
     const busy = window.Speech && Speech.isBusy();
+    const paused = !!(window.Speech && Speech.paused);
+    const speaking = !!(window.Speech && Speech.speaking && !paused);
     if (listenStop) listenStop.disabled = !busy;
-    const bookOn = !!(window.Speech && Speech.mode === "book");
-    if (listenHere) listenHere.disabled = bookOn;
-    if (listenStart) listenStart.disabled = bookOn;
+    if (listenPause) listenPause.disabled = !speaking;
+    if (listenPlay) listenPlay.disabled = speaking;
     document.body.classList.toggle("speech-on", !!busy);
 }
 
@@ -114,17 +115,23 @@ function startBook(from) {
     popup.close();
     reader.stop();
     reader.hideTitle();
-    Speech.speakBook(textContainer, from);
+    requestAnimationFrame(function () {
+        Speech.speakBook(textContainer, from);
+    });
 }
 
-if (listenHere) listenHere.addEventListener("click", (e) => {
+if (listenPlay) listenPlay.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (window.Speech && Speech.paused) {
+        Speech.resume();
+        return;
+    }
     startBook("here");
 });
 
-if (listenStart) listenStart.addEventListener("click", (e) => {
+if (listenPause) listenPause.addEventListener("click", (e) => {
     e.stopPropagation();
-    startBook("start");
+    Speech.pause();
 });
 
 if (listenStop) listenStop.addEventListener("click", (e) => {

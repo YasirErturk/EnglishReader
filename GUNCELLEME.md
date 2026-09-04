@@ -39,5 +39,6 @@ Altyapı: `js/speech.js`. Ayarlar `readerSettings` içinde birleşir (lab + okuy
 - Hoparlör ikonu (Google Translate gibi) tıklanınca okur
 - Lab: **Her çeviriyi sesli oku** tik — kapalıysa otomatik okumaz
 - Ses: kadın / erkek / yaşlı / genç / çocuk
-- **Buradan oku** ekrandaki cümleden, **Baştan** kitap başından
+- Ortadaki ▶ buradan okur, II duraklatır, ■ durdurur
+- Cümle bandı + okunan kelime daha koyu
 - Popup metin genişliğinde (700px)

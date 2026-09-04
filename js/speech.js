@@ -94,21 +94,67 @@ window.Speech = {
     },
 
     clearHighlight: function () {
-        this.currentSpans.forEach(function (s) {
-            s.classList.remove("speaking");
+        document.querySelectorAll(".speaking-word").forEach(function (s) {
+            s.classList.remove("speaking-word");
         });
+        if (this._wrap && this._wrap.parentNode) {
+            const p = this._wrap.parentNode;
+            while (this._wrap.firstChild) p.insertBefore(this._wrap.firstChild, this._wrap);
+            p.removeChild(this._wrap);
+        }
+        this._wrap = null;
         this.currentSpans = [];
     },
 
     highlight: function (spans) {
         this.clearHighlight();
         this.currentSpans = spans || [];
-        this.currentSpans.forEach(function (s) {
-            s.classList.add("speaking");
-        });
-        if (this.currentSpans[0] && this.currentSpans[0].scrollIntoView) {
-            this.currentSpans[0].scrollIntoView({ block: "center", behavior: "smooth" });
+        if (!this.currentSpans.length) return;
+        const first = this.currentSpans[0];
+        const last = this.currentSpans[this.currentSpans.length - 1];
+        if (!first || !first.parentNode) return;
+        const wrap = document.createElement("span");
+        wrap.className = "sentence-band";
+        const parent = first.parentNode;
+        const move = [];
+        let node = first;
+        while (node) {
+            const next = node.nextSibling;
+            move.push(node);
+            if (node === last) {
+                if (next && next.nodeType === 3) move.push(next);
+                break;
+            }
+            node = next;
         }
+        parent.insertBefore(wrap, first);
+        move.forEach(function (n) { wrap.appendChild(n); });
+        this._wrap = wrap;
+        if (this.currentSpans[0].classList) this.currentSpans[0].classList.add("speaking-word");
+        wrap.scrollIntoView({ block: "center", behavior: "smooth" });
+    },
+
+    markWordAt: function (charIndex) {
+        const unit = this._unit;
+        if (!unit || !unit.spans || !unit.spans.length) return;
+        const text = unit.text || "";
+        let pos = 0;
+        let hit = unit.spans[0];
+        for (let i = 0; i < unit.spans.length; i++) {
+            const w = unit.spans[i].textContent || "";
+            const at = text.indexOf(w, pos);
+            if (at < 0) continue;
+            if (charIndex < at + w.length) {
+                hit = unit.spans[i];
+                break;
+            }
+            pos = at + w.length;
+            hit = unit.spans[i];
+        }
+        document.querySelectorAll(".speaking-word").forEach(function (s) {
+            s.classList.remove("speaking-word");
+        });
+        if (hit) hit.classList.add("speaking-word");
     },
 
     chunk: function (text) {
@@ -182,6 +228,10 @@ window.Speech = {
         if (this.voice) u.voice = this.voice;
 
         const self = this;
+        u.onboundary = function (evt) {
+            if (!evt || (evt.name !== "word" && evt.name !== "Word")) return;
+            self.markWordAt(evt.charIndex);
+        };
         const step = function () {
             if (!self.speaking) return;
             self.index += 1;
@@ -219,8 +269,10 @@ window.Speech = {
     speakSentence: function (sentence, spans) {
         const t = String(sentence || "").replace(/\s+/g, " ").trim();
         if (!t) return false;
+        this._unit = { text: t, spans: spans || [] };
+        const ok = this.speak(t, { mode: "sentence" });
         if (spans && spans.length) this.highlight(spans);
-        return this.speak(t, { mode: "sentence" });
+        return ok;
     },
 
     collectSentences: function (container) {
@@ -280,19 +332,33 @@ window.Speech = {
         return { text: sentence, spans: [span] };
     },
 
-    speakBook: function (container) {
+    speakBook: function (container, from) {
         if (!this.supported()) return false;
         this.pickVoice();
         const units = this.collectSentences(container);
         if (!units.length) return false;
         this.stop(true);
         this._book = units;
-        this._bookIndex = 0;
+        this._bookIndex = from === "start" ? 0 : this.indexFromViewport(units);
         this.mode = "book";
         this.speaking = true;
         this.emit();
         this._runBookUnit();
         return true;
+    },
+
+    indexFromViewport: function (units) {
+        const scroller = document.getElementById("reader");
+        const top = scroller && scroller.getBoundingClientRect
+            ? scroller.getBoundingClientRect().top
+            : 0;
+        const line = top + 110;
+        for (let i = 0; i < units.length; i++) {
+            const span = units[i].spans && units[i].spans[0];
+            if (!span || !span.getBoundingClientRect) continue;
+            if (span.getBoundingClientRect().bottom > line) return i;
+        }
+        return Math.max(0, units.length - 1);
     },
 
     _runBookUnit: function () {
