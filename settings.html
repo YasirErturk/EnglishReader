@@ -9,25 +9,29 @@
 html,body{height:100%;overflow:hidden}
 #labBar{
     position:fixed;left:0;right:0;top:0;z-index:20;
-    background:#161616;padding:16px 20px 18px;
-    display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:14px;align-items:end;
+    background:#efe6d6;color:#1c1914;padding:14px 20px 16px;
+    display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;align-items:end;
+    border-bottom:1px solid #e4d8c4;
 }
-#labBar label{display:block;font-size:13px;margin-bottom:6px;color:#bbb}
-#labBar input,#labBar select{width:100%;background:#111;color:#fff;border:1px solid #333;border-radius:8px;padding:8px}
+#labBar .row2{grid-column:1 / -1;display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;align-items:end}
+#labBar label{display:block;font-size:13px;margin-bottom:6px;color:#5c564c;font-family:Arial,sans-serif}
+#labBar input,#labBar select{width:100%;background:#fff;color:#1c1914;border:1px solid #d7ccba;border-radius:8px;padding:8px}
 #labBar a,#labBar button{
-    border:none;border-radius:12px;padding:12px 16px;cursor:pointer;text-decoration:none;color:#fff;background:#3478f6;font-size:14px;display:inline-block;
+    border:none;border-radius:12px;padding:12px 16px;cursor:pointer;text-decoration:none;color:#fff;background:#2c6e57;font-size:14px;display:inline-block;
 }
+#labBar .check label{display:flex;gap:8px;align-items:center;margin:0 0 8px}
+#labBar .check input{width:auto}
 #reader.lab{
     height:100vh;
     overflow-y:auto;
-    padding:130px 30px 40px;
+    padding:210px 30px 40px;
 }
 </style>
 </head>
-<body>
+<body data-paper="cream">
 <div id="labBar">
     <div>
-        <label>Hız <span id="speedLabel">0.6</span></label>
+        <label>Kaydırma hızı <span id="speedLabel">0.6</span></label>
         <input id="speedSlider" type="range" min="0.2" max="7" step="0.1" value="0.6">
     </div>
     <div>
@@ -50,12 +54,44 @@ html,body{height:100%;overflow:hidden}
         <button id="saveBtn" type="button">Kaydet</button>
         <a href="index.html">Ana sayfa</a>
     </div>
+    <div class="row2">
+        <div>
+            <label>Ses hızı</label>
+            <input id="speechRate" type="range" min="0.6" max="1.4" step="0.05" value="0.95">
+        </div>
+        <div>
+            <label>Ses</label>
+            <select id="voiceProfile">
+                <option value="woman">Kadın</option>
+                <option value="man">Erkek</option>
+                <option value="old">Yaşlı</option>
+                <option value="young">Genç</option>
+                <option value="child">Çocuk</option>
+            </select>
+        </div>
+        <div>
+            <label>Sayfa rengi</label>
+            <div id="paperSwatches" class="swatches">
+                <button type="button" data-paper="cream" title="Krem"></button>
+                <button type="button" data-paper="paper" title="Beyaz"></button>
+                <button type="button" data-paper="sage" title="Adaçayı"></button>
+                <button type="button" data-paper="night" title="Gece"></button>
+            </div>
+        </div>
+        <div class="check">
+            <label>
+                <input id="autoSpeak" type="checkbox">
+                Her çeviriyi sesli oku
+            </label>
+        </div>
+    </div>
 </div>
 
 <main id="reader" class="lab">
     <div id="textContainer"></div>
 </main>
 
+<script src="js/prefs.js"></script>
 <script src="js/settings.js"></script>
 <script>
 const box = document.getElementById("textContainer");
@@ -63,6 +99,9 @@ const speedSlider = document.getElementById("speedSlider");
 const fontSlider = document.getElementById("fontSlider");
 const lineSlider = document.getElementById("lineSlider");
 const dictStyle = document.getElementById("dictStyle");
+const speechRate = document.getElementById("speechRate");
+const voiceProfile = document.getElementById("voiceProfile");
+const autoSpeak = document.getElementById("autoSpeak");
 const speedLabel = document.getElementById("speedLabel");
 const readerEl = document.getElementById("reader");
 const settings = new Settings();
@@ -85,15 +124,29 @@ function apply() {
     speedLabel.textContent = Number(speedSlider.value).toFixed(1);
 }
 
+function collect() {
+    return {
+        speed: parseFloat(speedSlider.value),
+        font: parseInt(fontSlider.value, 10),
+        line: parseFloat(lineSlider.value),
+        dictStyle: dictStyle.value,
+        speechRate: parseFloat(speechRate.value),
+        voiceProfile: voiceProfile.value,
+        autoSpeak: !!autoSpeak.checked,
+        paper: document.body.getAttribute("data-paper") || "cream"
+    };
+}
+
 function load() {
-    const saved = localStorage.getItem("readerSettings");
-    if (saved) {
-        const data = JSON.parse(saved);
-        if (data.speed) speedSlider.value = data.speed;
-        if (data.font) fontSlider.value = data.font;
-        if (data.line) lineSlider.value = data.line;
-        if (data.dictStyle) dictStyle.value = data.dictStyle;
-    }
+    const data = readPrefs();
+    speedSlider.value = data.speed;
+    fontSlider.value = data.font;
+    lineSlider.value = data.line;
+    dictStyle.value = data.dictStyle;
+    speechRate.value = data.speechRate;
+    voiceProfile.value = data.voiceProfile || "woman";
+    autoSpeak.checked = !!data.autoSpeak;
+    applyPaper(data.paper || "cream");
     apply();
 }
 
@@ -101,13 +154,14 @@ speedSlider.addEventListener("input", apply);
 fontSlider.addEventListener("input", apply);
 lineSlider.addEventListener("input", apply);
 
+document.querySelectorAll("#paperSwatches button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        applyPaper(btn.getAttribute("data-paper"));
+    });
+});
+
 document.getElementById("saveBtn").addEventListener("click", function () {
-    localStorage.setItem("readerSettings", JSON.stringify({
-        speed: parseFloat(speedSlider.value),
-        font: parseInt(fontSlider.value, 10),
-        line: parseFloat(lineSlider.value),
-        dictStyle: dictStyle.value
-    }));
+    writePrefs(collect());
     this.textContent = "Kaydedildi";
 });
 

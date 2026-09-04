@@ -67,13 +67,18 @@
 
     <div id="popupKind"></div>
 
-    <div id="popupWord"></div>
+    <div id="popupWordRow">
+        <div id="popupWord"></div>
+        <button id="speakIcon" type="button" title="Sesli oku" aria-label="Sesli oku">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path fill="currentColor" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7.5 7.5 0 0 1 0 13.42v2.06a9.5 9.5 0 0 0 0-17.54z"/>
+            </svg>
+        </button>
+    </div>
 
     <div id="popupMeaning"></div>
 
     <div id="popupSource"></div>
-
-    <button id="speakAgain" type="button">Sesli oku</button>
 
     <button id="saveWordButton" type="button">Kelime defterime ekle</button>
 
@@ -153,6 +158,24 @@
 
     </div>
 
+    <div class="setting">
+        <label>Ses</label>
+        <select id="voiceProfile">
+            <option value="woman">Kadın</option>
+            <option value="man">Erkek</option>
+            <option value="old">Yaşlı</option>
+            <option value="young">Genç</option>
+            <option value="child">Çocuk</option>
+        </select>
+    </div>
+
+    <div class="setting check">
+        <label>
+            <input id="autoSpeak" type="checkbox">
+            Her çeviriyi sesli oku
+        </label>
+    </div>
+
     <a class="settings-link" href="settings.html">Ayar laboratuvarı →</a>
 
 </div>
@@ -166,7 +189,8 @@
 </div>
 
 <div id="listenBar">
-    <button id="listenBook" type="button">Kitabı oku</button>
+    <button id="listenHere" type="button">Buradan oku</button>
+    <button id="listenStart" type="button">Baştan</button>
     <button id="listenStop" type="button">Durdur</button>
 </div>
 
@@ -182,6 +206,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+<script src="js/prefs.js"></script>
 <script src="js/access.js"></script>
 <script src="js/api.js"></script>
 <script src="dictionary/tr.js"></script>

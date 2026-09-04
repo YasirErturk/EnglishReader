@@ -13,7 +13,7 @@ class Popup {
         this.suggestButton = document.getElementById("suggestWordButton");
         this.suggestBox = document.getElementById("suggestBox");
         this.suggestInput = document.getElementById("suggestMeaning");
-        this.speakAgain = document.getElementById("speakAgain");
+        this.speakIcon = document.getElementById("speakIcon");
 
         this.currentText = "";
         this.currentMeaning = "";
@@ -58,8 +58,8 @@ class Popup {
             });
         }
 
-        if (this.speakAgain) {
-            this.speakAgain.addEventListener("click", (e) => {
+        if (this.speakIcon) {
+            this.speakIcon.addEventListener("click", (e) => {
                 e.stopPropagation();
                 if (this.mode === "sentence") Speech.speakSentence(this.word.textContent);
                 else Speech.speakWord(this.currentText);
@@ -99,7 +99,7 @@ class Popup {
         this.meaning.textContent = "Bakılıyor…";
         if (this.source) this.source.textContent = "";
 
-        if (this.speakAgain) this.speakAgain.style.display = "block";
+        if (this.speakIcon) this.speakIcon.style.display = "inline-flex";
         if (this.saveButton) {
             this.saveButton.style.display = "block";
             this.saveButton.textContent = "Kelime defterime ekle";
@@ -141,7 +141,7 @@ class Popup {
         if (this.source) this.source.textContent = "";
 
         if (this.saveButton) this.saveButton.style.display = "none";
-        if (this.speakAgain) this.speakAgain.style.display = "block";
+        if (this.speakIcon) this.speakIcon.style.display = "inline-flex";
         this.resetSuggest();
 
         this.popup.classList.add("show");

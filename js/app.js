@@ -97,22 +97,34 @@ if (speechRateEl) speechRateEl.addEventListener("input", () => {
     saveSettings();
 });
 
-const listenBook = document.getElementById("listenBook");
+const listenHere = document.getElementById("listenHere");
+const listenStart = document.getElementById("listenStart");
 const listenStop = document.getElementById("listenStop");
 
 function syncListenBar() {
     const busy = window.Speech && Speech.isBusy();
     if (listenStop) listenStop.disabled = !busy;
-    if (listenBook) listenBook.disabled = !!(window.Speech && Speech.mode === "book");
+    const bookOn = !!(window.Speech && Speech.mode === "book");
+    if (listenHere) listenHere.disabled = bookOn;
+    if (listenStart) listenStart.disabled = bookOn;
     document.body.classList.toggle("speech-on", !!busy);
 }
 
-if (listenBook) listenBook.addEventListener("click", (e) => {
-    e.stopPropagation();
+function startBook(from) {
     popup.close();
     reader.stop();
     reader.hideTitle();
-    Speech.speakBook(textContainer);
+    Speech.speakBook(textContainer, from);
+}
+
+if (listenHere) listenHere.addEventListener("click", (e) => {
+    e.stopPropagation();
+    startBook("here");
+});
+
+if (listenStart) listenStart.addEventListener("click", (e) => {
+    e.stopPropagation();
+    startBook("start");
 });
 
 if (listenStop) listenStop.addEventListener("click", (e) => {
@@ -147,31 +159,22 @@ if (speedDown) speedDown.addEventListener("click", (e) => { e.stopPropagation();
 
 function saveSettings() {
 
-    const data = {
-
+    writePrefs({
         speed: parseFloat(speedSlider ? speedSlider.value : settings.speed),
         font: parseInt(fontSlider ? fontSlider.value : 34, 10),
         line: parseFloat(lineSlider ? lineSlider.value : 2.2),
         dictStyle: (document.getElementById("dictStyle") || {}).value || "simple",
         paper: document.body.getAttribute("data-paper") || "cream",
-        speechRate: parseFloat((document.getElementById("speechRate") || {}).value || (window.Speech && Speech.rate) || 0.95)
-
-    };
-
-    localStorage.setItem(
-        "readerSettings",
-        JSON.stringify(data)
-    );
+        speechRate: parseFloat((document.getElementById("speechRate") || {}).value || (window.Speech && Speech.rate) || 0.95),
+        autoSpeak: !!(document.getElementById("autoSpeak") && document.getElementById("autoSpeak").checked),
+        voiceProfile: (document.getElementById("voiceProfile") || {}).value || "woman"
+    });
 
 }
 
 function loadSettings() {
 
-    const saved = localStorage.getItem("readerSettings");
-
-    if (!saved) return;
-
-    const data = JSON.parse(saved);
+    const data = readPrefs();
 
     if (speedSlider) speedSlider.value = data.speed;
     if (fontSlider) fontSlider.value = data.font;
@@ -182,26 +185,19 @@ function loadSettings() {
     settings.speed = Number(data.speed);
 
     applyPaper(data.paper || "cream");
-    if (data.speechRate && window.Speech) {
-        Speech.setRate(data.speechRate);
-        const sr = document.getElementById("speechRate");
-        if (sr) sr.value = data.speechRate;
-    }
+    if (window.Speech) Speech.applyPrefs();
+    const sr = document.getElementById("speechRate");
+    if (sr) sr.value = data.speechRate;
+    const vp = document.getElementById("voiceProfile");
+    if (vp && data.voiceProfile) vp.value = data.voiceProfile;
+    const as = document.getElementById("autoSpeak");
+    if (as) as.checked = !!data.autoSpeak;
 
     if (textContainer) {
         textContainer.style.fontSize = data.font + "px";
         textContainer.style.lineHeight = data.line;
     }
 
-}
-
-function applyPaper(name) {
-    const allowed = { cream: 1, paper: 1, sage: 1, night: 1 };
-    const paper = allowed[name] ? name : "cream";
-    document.body.setAttribute("data-paper", paper);
-    document.querySelectorAll("#paperSwatches button").forEach(function (btn) {
-        btn.classList.toggle("on", btn.getAttribute("data-paper") === paper);
-    });
 }
 
 document.querySelectorAll("#paperSwatches button").forEach(function (btn) {

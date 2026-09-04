@@ -397,7 +397,7 @@ class Reader {
                 document.querySelectorAll(".word").forEach(w => w.classList.remove("selected"));
                 span.classList.add("selected");
                 const unit = Speech.spansForSentence(span);
-                Speech.speakSentence(unit.text, unit.spans);
+                if (readPrefs().autoSpeak) Speech.speakSentence(unit.text, unit.spans);
                 this.popup.showSentence(unit.text, span.textContent);
             }, 520);
         };
@@ -430,7 +430,7 @@ class Reader {
 
             document.querySelectorAll(".word").forEach(w => w.classList.remove("selected"));
             span.classList.add("selected");
-            Speech.speakWord(span.textContent);
+            if (readPrefs().autoSpeak) Speech.speakWord(span.textContent);
             this.popup.showWord(span.textContent);
 
         });

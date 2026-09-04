@@ -2,6 +2,8 @@ window.Speech = {
 
     lang: "en-US",
     rate: 0.95,
+    pitch: 1,
+    profile: "woman",
     voice: null,
     mode: null,
     speaking: false,
@@ -25,9 +27,18 @@ window.Speech = {
         pick();
         speechSynthesis.addEventListener("voiceschanged", pick);
         try {
-            const saved = JSON.parse(localStorage.getItem("readerSettings") || "{}");
+            const saved = typeof readPrefs === "function" ? readPrefs() : JSON.parse(localStorage.getItem("readerSettings") || "{}");
             if (saved.speechRate) self.rate = Number(saved.speechRate);
+            if (saved.voiceProfile) self.profile = saved.voiceProfile;
         } catch (err) {}
+        self.pickVoice();
+    },
+
+    applyPrefs: function () {
+        const p = typeof readPrefs === "function" ? readPrefs() : {};
+        if (p.speechRate) this.setRate(p.speechRate);
+        if (p.voiceProfile) this.profile = p.voiceProfile;
+        this.pickVoice();
     },
 
     pickVoice: function () {
@@ -36,18 +47,29 @@ window.Speech = {
         const en = voices.filter(function (v) {
             return String(v.lang || "").toLowerCase().indexOf("en") === 0;
         });
+        const pool = en.length ? en : voices;
+        const profile = this.profile || "woman";
+        const female = /female|woman|samantha|zira|karen|moira|tessa|fiona|victoria|aria|jenny|salli|linda|hazel|susan|kate|serena|ava|allison/;
+        const male = /male|man|david|daniel|mark|george|james|guy|fred|tom|alex(?!a)|daniel|rishi|aaron|arthur|brian/;
+        const child = /child|kid|junior|boy|girl/;
         const score = function (v) {
             const n = (v.name || "").toLowerCase();
-            const lang = (v.lang || "").toLowerCase();
             let s = 0;
-            if (lang.indexOf("en-us") === 0) s += 3;
-            if (lang.indexOf("en-gb") === 0) s += 2;
-            if (/google|natural|neural|premium|samantha|daniel|aria/.test(n)) s += 4;
-            if (v.localService) s += 1;
+            if (profile === "child") s += child.test(n) ? 8 : 0;
+            if (profile === "woman" || profile === "young") s += female.test(n) ? 6 : (male.test(n) ? -2 : 0);
+            if (profile === "man" || profile === "old") s += male.test(n) ? 6 : (female.test(n) ? -2 : 0);
+            if (/google|natural|neural|premium/.test(n)) s += 3;
+            if ((v.lang || "").toLowerCase().indexOf("en-us") === 0) s += 2;
             return s;
         };
-        en.sort(function (a, b) { return score(b) - score(a); });
-        this.voice = en[0] || voices[0] || null;
+        pool.sort(function (a, b) { return score(b) - score(a); });
+        this.voice = pool[0] || null;
+        this.pitch = 1;
+        if (profile === "woman") this.pitch = 1.05;
+        if (profile === "man") this.pitch = 0.92;
+        if (profile === "old") this.pitch = 0.78;
+        if (profile === "young") this.pitch = 1.18;
+        if (profile === "child") this.pitch = 1.4;
     },
 
     setRate: function (n) {
@@ -155,8 +177,8 @@ window.Speech = {
         const text = this.queue[this.index];
         const u = new SpeechSynthesisUtterance(text);
         u.lang = this.lang;
-        u.rate = this.rate;
-        u.pitch = 1;
+        u.rate = this.profile === "old" ? Math.max(0.6, this.rate * 0.88) : this.rate;
+        u.pitch = this.pitch || 1;
         if (this.voice) u.voice = this.voice;
 
         const self = this;

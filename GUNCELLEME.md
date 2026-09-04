@@ -34,10 +34,10 @@ Okuyucuda **sayfa rengi:** krem, beyaz, adaçayı, gece.
 
 ## Sesli okuma
 
-Altyapı: `js/speech.js` (tarayıcı TTS, İngilizce ses).
+Altyapı: `js/speech.js`. Ayarlar `readerSettings` içinde birleşir (lab + okuyucu).
 
-- Kelimeye tıkla → sesli okur
-- Basılı tut → cümleyi sesli okur
-- Sol alt **Durdur**
-- **Kitabı oku** baştan sona; okunan cümle işaretlenir
-- Ayarlarda ses hızı
+- Hoparlör ikonu (Google Translate gibi) tıklanınca okur
+- Lab: **Her çeviriyi sesli oku** tik — kapalıysa otomatik okumaz
+- Ses: kadın / erkek / yaşlı / genç / çocuk
+- **Buradan oku** ekrandaki cümleden, **Baştan** kitap başından
+- Popup metin genişliğinde (700px)
